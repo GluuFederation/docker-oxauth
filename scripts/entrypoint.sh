@@ -39,9 +39,31 @@ prepare_jks_sync_env
 cron
 
 cd /opt/gluu/jetty/oxauth
-exec gosu root java -jar /opt/jetty/start.jar -server \
-    -Xms256m -Xmx4096m -XX:+DisableExplicitGC \
-    -Dgluu.base=/etc/gluu \
-    -Dserver.base=/opt/gluu/jetty/oxauth \
-    -Dlog.base=/opt/gluu/jetty/oxauth \
-    -Dpython.home=/opt/jython
+
+
+get_java_opts() {
+    local java_opts="
+      -server
+      -Xms256m
+      -Xmx4096m
+      -XX:+DisableExplicitGC
+      -Dgluu.base=/etc/gluu
+      -Dserver.base=/opt/gluu/jetty/oxauth
+      -Dlog.base=/opt/gluu/jetty/oxauth
+      -Dpython.home=/opt/jython
+    "
+
+    if [ -n "${GLUU_DEBUG_PORT}" ]; then
+        java_opts="
+            ${java_opts}
+            -agentlib:jdwp=transport=dt_socket,address=${GLUU_DEBUG_PORT},server=y,suspend=n
+        "
+    fi
+
+    echo "${java_opts}"
+}
+
+exec gosu \
+     root \
+     java $(get_java_opts) \
+     -jar /opt/jetty/start.jar
