@@ -108,6 +108,7 @@ ENV GLUU_CUSTOM_OXAUTH_URL ""
 VOLUME ${JETTY_BASE}/oxauth/custom/pages
 VOLUME ${JETTY_BASE}/oxauth/custom/static
 VOLUME ${JETTY_BASE}/oxauth/lib/ext
+VOLUME ${JETTY_BASE}/oxauth/logs
 
 COPY scripts /opt/scripts
 RUN chmod +x /opt/scripts/entrypoint.sh
