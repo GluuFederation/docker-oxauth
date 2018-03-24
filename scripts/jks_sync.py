@@ -4,7 +4,7 @@ import os
 import time
 
 import consulate
-from M2Crypto.EVP import Cipher
+import pyDes
 from requests.exceptions import ConnectionError
 
 GLUU_KV_HOST = os.environ.get("GLUU_KV_HOST", "localhost")
@@ -19,18 +19,34 @@ fmt = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
 ch.setFormatter(fmt)
 logger.addHandler(ch)
 
+CONFIG_PREFIX = "gluu/config/"
+
+
+def merge_path(name):
+    # example: `hostname` renamed to `gluu/config/hostname`
+    return "".join([CONFIG_PREFIX, name])
+
+
+def unmerge_path(name):
+    # example: `gluu/config/hostname` renamed to `hostname`
+    return name[len(CONFIG_PREFIX):]
+
+
+def get_config(name, default=None):
+    return consul.kv.get(merge_path(name), default)
+
 
 def jks_created():
-    jks = decrypt_text(consul.kv.get("oxauth_jks_base64"), consul.kv.get("encoded_salt"))
+    jks = decrypt_text(get_config("oxauth_jks_base64"), get_config("encoded_salt"))
 
-    with open(consul.kv.get("oxauth_openid_jks_fn"), "w") as fd:
+    with open(get_config("oxauth_openid_jks_fn"), "wb") as fd:
         fd.write(jks)
         return True
     return False
 
 
 def should_sync_jks():
-    last_rotation = consul.kv.get("oxauth_key_rotated_at")
+    last_rotation = get_config("oxauth_key_rotated_at")
 
     # keys are not rotated yet
     if not last_rotation:
@@ -38,7 +54,7 @@ def should_sync_jks():
 
     # check modification time of local JKS
     try:
-        mtime = int(os.path.getmtime(consul.kv.get("oxauth_openid_jks_fn")))
+        mtime = int(os.path.getmtime(get_config("oxauth_openid_jks_fn")))
     except OSError:
         mtime = 0
 
@@ -55,17 +71,10 @@ def sync_jks():
 
 
 def decrypt_text(encrypted_text, key):
-    # Porting from pyDes-based encryption (see http://git.io/htpk)
-    # to use M2Crypto instead (see https://gist.github.com/mrluanma/917014)
-    cipher = Cipher(alg="des_ede3_ecb",
-                    key=b"{}".format(key),
-                    op=0,
-                    iv="\0" * 16)
-    decrypted_text = cipher.update(base64.b64decode(
-        b"{}".format(encrypted_text)
-    ))
-    decrypted_text += cipher.final()
-    return decrypted_text
+    cipher = pyDes.triple_des(b"{}".format(key), pyDes.ECB,
+                              padmode=pyDes.PAD_PKCS5)
+    encrypted_text = b"{}".format(base64.b64decode(encrypted_text))
+    return cipher.decrypt(encrypted_text)
 
 
 def main():
