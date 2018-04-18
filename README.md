@@ -50,6 +50,7 @@ docker run -d \
     -e GLUU_KV_PORT=8500 \
     -e GLUU_LDAP_URL=my.ldap.domain.com:1636 \
     -e GLUU_CUSTOM_OXAUTH_URL=http://my.domain.com/resources/custom-oxauth.tar.gz \
+    -p 8081:8080 \
     gluufederation/oxauth:3.1.2_dev
 ```
 
@@ -70,7 +71,8 @@ There are 2 ways to run oxAuth with custom files:
         -e GLUU_KV_PORT=8500 \
         -e GLUU_LDAP_URL=my.ldap.domain.com:1636 \
         -e GLUU_CUSTOM_OXAUTH_URL=http://my.domain.com/resources/custom-oxauth.tar.gz \
-        gluufederation/oxauth:containership
+        -p 8081:8080 \
+        gluufederation/oxauth:3.1.2_dev
     ```
 
     The `.tar.gz` file must consist of following directories:
@@ -90,8 +92,9 @@ There are 2 ways to run oxAuth with custom files:
         -e GLUU_KV_HOST=my.consul.domain.com \
         -e GLUU_KV_PORT=8500 \
         -e GLUU_LDAP_URL=my.ldap.domain.com:1636 \
+        -p 8081:8080 \
         -v /path/to/custom/pages:/opt/gluu/jetty/oxauth/custom/pages \
         -v /path/to/custom/static:/opt/gluu/jetty/oxauth/custom/static \
         -v /path/to/custom/lib/ext:/opt/gluu/jetty/oxauth/lib/ext \
-        gluufederation/oxauth:containership
+        gluufederation/oxauth:3.1.2_dev
     ```
