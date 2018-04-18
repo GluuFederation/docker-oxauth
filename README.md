@@ -1,10 +1,10 @@
 # oxAuth
 
-A docker image version of Gluu Server oxAuth.
+A Docker image version of Gluu Server oxAuth.
 
 ## Latest Stable Release
 
-Latest stable release is `gluufederation/oxauth:3.1.2_dev`. See `CHANGES.md` for archives.
+The latest stable release is `gluufederation/oxauth:3.1.2_dev`. Click [here](./CHANGES.md) for archives.
 
 ## Versioning/Tagging
 
@@ -14,9 +14,9 @@ This image uses its own versioning/tagging format.
 
 For example, `gluufederation/oxauth:3.1.2_dev` consists of:
 
-- glufederation/oxauth as `<IMAGE_NAME>`; the actual image name
-- 3.1.2 as `GLUU-SERVER-VERSION`; the Gluu Server version as setup reference
-- \_dev as `<BASELINE_DEV>`; used until official production release
+- gluufederation/oxauth as `<IMAGE_NAME>`: the actual image name
+- 3.1.2 as `GLUU-SERVER-VERSION`: the Gluu Server version as setup reference
+- \_dev as `<BASELINE_DEV>`: used until official production release
 
 ## Installation
 
@@ -30,7 +30,7 @@ docker pull gluufederation/oxauth:3.1.2_dev
 
 - `GLUU_KV_HOST`: hostname or IP address of Consul.
 - `GLUU_KV_PORT`: port of Consul.
-- `GLUU_LDAP_URL`: URL to LDAP in `host:port` format string (i.e. `192.168.100.4:1636`); multiple URLs can be used using comma-separated value (i.e. `192.168.100.1:1636,192.168.100.2:1636`).
+- `GLUU_LDAP_URL`: URL to LDAP in `host:port` format string (i.e. `192.168.100.4:1636`); multiple URLs can be used using comma-separated values (i.e. `192.168.100.1:1636,192.168.100.2:1636`).
 - `GLUU_CUSTOM_OXAUTH_URL`: URL to downloadable custom oxAuth files packed using `.tar.gz` format.
 
 ## Volumes
@@ -41,7 +41,7 @@ docker pull gluufederation/oxauth:3.1.2_dev
 
 ## Running The Container
 
-Here's an example to run the container:
+Here's an example of how to run the container:
 
 ```
 docker run -d \
@@ -59,10 +59,10 @@ docker run -d \
 oxAuth can be customized by providing HTML pages, static resource files (i.e. CSS), or JAR libraries.
 Refer to https://www.gluu.org/docs/ce/3.1.2/operation/custom-design/ for an example on how to customize oxAuth.
 
-There are 2 ways to run oxAuth with custom files:
+There are two ways to run oxAuth with custom files:
 
 1.  Pass `GLUU_CUSTOM_OXAUTH_URL` environment variable; the container will download and extract the file into
-    appropriate location before running the application.
+    the appropriate location before running the application.
 
     ```
     docker run -d \
@@ -75,7 +75,7 @@ There are 2 ways to run oxAuth with custom files:
         gluufederation/oxauth:3.1.2_dev
     ```
 
-    The `.tar.gz` file must consist of following directories:
+    The `.tar.gz` file must consist of the following directories:
 
     ```
     ├── lib
