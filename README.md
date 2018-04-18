@@ -4,7 +4,7 @@ A Docker image version of Gluu Server oxAuth.
 
 ## Latest Stable Release
 
-The latest stable release is `gluufederation/oxauth:3.1.2_dev`. Click [here](./CHANGES.md) for archives.
+The latest stable release is `gluufederation/oxauth:3.1.2_dev`. Click [here](./CHANGES.md) for archived versions.
 
 ## Versioning/Tagging
 
