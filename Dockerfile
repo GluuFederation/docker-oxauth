@@ -14,7 +14,7 @@ RUN apk update && apk add --no-cache \
 # Jetty
 # =====
 
-ENV JETTY_VERSION 9.3.15.v20161220
+ENV JETTY_VERSION 9.4.9.v20180320
 ENV JETTY_TGZ_URL https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${JETTY_VERSION}/jetty-distribution-${JETTY_VERSION}.tar.gz
 ENV JETTY_HOME /opt/jetty
 ENV JETTY_BASE /opt/gluu/jetty
@@ -39,21 +39,19 @@ EXPOSE 8080
 # Jython
 # ======
 
-ENV JYTHON_VERSION 2.7.0
-ENV JYTHON_DOWNLOAD_URL http://central.maven.org/maven2/org/python/jython-standalone/${JYTHON_VERSION}/jython-standalone-${JYTHON_VERSION}.jar
-
-# Install Jython
-RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython.jar \
+ENV JYTHON_VERSION 2.7.2a1
+ENV JYTHON_DOWNLOAD_URL https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.jar
+RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
-    && unzip -q /tmp/jython.jar -d /opt/jython \
-    && rm -f /tmp/jython.jar
+    && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython -t standard -e ensurepip \
+    && rm -f /tmp/jython-installer.jar
 
 # ======
 # oxAuth
 # ======
 
-ENV OX_VERSION 3.1.2.Final
-ENV OX_BUILD_DATE 2018-01-18
+ENV OX_VERSION 3.1.3.Final
+ENV OX_BUILD_DATE 2018-04-30
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
@@ -66,7 +64,7 @@ LABEL vendor="Gluu Federation" \
 RUN wget -q ${OXAUTH_DOWNLOAD_URL} -O /tmp/oxauth.war \
     && mkdir -p ${JETTY_BASE}/oxauth/webapps/oxauth \
     && unzip -qq /tmp/oxauth.war -d ${JETTY_BASE}/oxauth/webapps/oxauth \
-    && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/oxauth --add-to-start=deploy,http,jsp,servlets,ext,http-forwarded,websocket \
+    && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/oxauth --add-to-start=server,deploy,annotations,resources,http,console-capture,jsp,ext,websocket \
     && rm -f /tmp/oxauth.war \
     && mv ${JETTY_BASE}/oxauth/webapps/oxauth/WEB-INF/web.xml ${JETTY_BASE}/oxauth/webapps/oxauth/WEB-INF/web.xml.bak
 
