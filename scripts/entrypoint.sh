@@ -22,9 +22,22 @@ download_custom_tar() {
     fi
 }
 
+import_ssl_cert() {
+    if [ -f /etc/certs/gluu_https.crt ]; then
+        openssl x509 -outform der -in /etc/certs/gluu_https.crt -out /etc/certs/gluu_https.der
+        keytool -importcert -trustcacerts \
+            -alias gluu_https \
+            -file /etc/certs/gluu_https.der \
+            -keystore /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
+            -storepass changeit \
+            -noprompt
+    fi
+}
+
 if [ ! -f /touched ]; then
     download_custom_tar
     python /opt/scripts/entrypoint.py
+    import_ssl_cert
     touch /touched
 fi
 
