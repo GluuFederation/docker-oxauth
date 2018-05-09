@@ -40,13 +40,13 @@ EXPOSE 8080
 # ======
 
 ENV JYTHON_VERSION 2.7.0
-ENV JYTHON_DOWNLOAD_URL http://central.maven.org/maven2/org/python/jython-standalone/${JYTHON_VERSION}/jython-standalone-${JYTHON_VERSION}.jar
+ENV JYTHON_DOWNLOAD_URL https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar
 
 # Install Jython
-RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython.jar \
-    && mkdir -p /opt/jython \
-    && unzip -q /tmp/jython.jar -d /opt/jython \
-    && rm -f /tmp/jython.jar
+RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer-${JYTHON_VERSION}.jar \
+    && java -jar /tmp/jython-installer-${JYTHON_VERSION}.jar -v -s -d /opt/jython-${JYTHON_VERSION} -t standard -e ensurepip \
+    && ln -sf /opt/jython-${JYTHON_VERSION} /opt/jython \
+    && rm -f /tmp/jython-installer-${JYTHON_VERSION}.jar
 
 # ======
 # oxAuth
@@ -99,6 +99,7 @@ ENV GLUU_LDAP_URL localhost:1636
 ENV GLUU_KV_HOST localhost
 ENV GLUU_KV_PORT 8500
 ENV GLUU_CUSTOM_OXAUTH_URL ""
+ENV PYTHON_HOME /opt/jython
 
 VOLUME ${JETTY_BASE}/oxauth/custom/pages
 VOLUME ${JETTY_BASE}/oxauth/custom/static
