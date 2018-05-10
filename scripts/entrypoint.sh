@@ -44,8 +44,12 @@ fi
 python /opt/scripts/jks_sync.py &
 
 cd /opt/gluu/jetty/oxauth
-exec java -jar /opt/jetty/start.jar -server \
-    -Xms256m -Xmx4096m -XX:+DisableExplicitGC \
+exec java -jar /opt/jetty/start.jar \
+    -server \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:+UseCGroupMemoryLimitForHeap \
+    -XX:MaxRAMFraction=$GLUU_MAX_RAM_FRACTION \
+    -XX:+DisableExplicitGC \
     -Dgluu.base=/etc/gluu \
     -Dserver.base=/opt/gluu/jetty/oxauth \
     -Dlog.base=/opt/gluu/jetty/oxauth \
