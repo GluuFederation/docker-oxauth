@@ -97,6 +97,8 @@ ENV GLUU_LDAP_URL localhost:1636
 ENV GLUU_KV_HOST localhost
 ENV GLUU_KV_PORT 8500
 ENV GLUU_CUSTOM_OXAUTH_URL ""
+ENV PYTHON_HOME /opt/jython
+ENV GLUU_MAX_RAM_FRACTION 1
 
 VOLUME ${JETTY_BASE}/oxauth/custom/pages
 VOLUME ${JETTY_BASE}/oxauth/custom/static
@@ -105,4 +107,4 @@ VOLUME ${JETTY_BASE}/oxauth/logs
 
 COPY scripts /opt/scripts
 RUN chmod +x /opt/scripts/entrypoint.sh
-CMD ["/opt/scripts/entrypoint.sh"]
+CMD ["/opt/scripts/wait-for-it", "/opt/scripts/entrypoint.sh"]
