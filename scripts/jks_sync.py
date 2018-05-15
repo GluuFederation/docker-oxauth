@@ -80,12 +80,9 @@ def decrypt_text(encrypted_text, key):
 def main():
     try:
         while True:
-            logger.info("checking whether JKS should be synchronized")
             try:
                 if should_sync_jks():
                     sync_jks()
-                else:
-                    logger.info("no need to sync JKS at the moment")
             except ConnectionError as exc:
                 logger.warn("unable to connect to KV storage; reason={}".format(exc))
             except Exception as exc:
