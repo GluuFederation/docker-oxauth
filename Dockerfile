@@ -72,6 +72,14 @@ RUN wget -q ${OXAUTH_DOWNLOAD_URL} -O /tmp/oxauth.war \
 
 COPY jetty/web.xml ${JETTY_BASE}/oxauth/webapps/oxauth/WEB-INF/
 
+# ===========
+# Custom libs
+# ===========
+
+ENV TWILIO_VERSION 7.17.6
+RUN mkdir -p ${JETTY_BASE}/oxauth/custom/libs
+RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O ${JETTY_BASE}/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
+
 # ======
 # Python
 # ======
