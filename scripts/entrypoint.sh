@@ -34,6 +34,30 @@ import_ssl_cert() {
     fi
 }
 
+get_java_opts() {
+    local java_opts="
+        -server \
+        -XX:+UnlockExperimentalVMOptions \
+        -XX:+UseCGroupMemoryLimitForHeap \
+        -XX:MaxRAMFraction=$GLUU_MAX_RAM_FRACTION \
+        -XX:+DisableExplicitGC \
+        -Dgluu.base=/etc/gluu \
+        -Dserver.base=/opt/gluu/jetty/oxauth \
+        -Dlog.base=/opt/gluu/jetty/oxauth \
+        -Dpython.home=/opt/jython
+
+    "
+
+    if [ -n "${GLUU_DEBUG_PORT}" ]; then
+        java_opts="
+            ${java_opts}
+            -agentlib:jdwp=transport=dt_socket,address=${GLUU_DEBUG_PORT},server=y,suspend=n
+        "
+    fi
+
+    echo "${java_opts}"
+}
+
 if [ ! -f /touched ]; then
     download_custom_tar
     python /opt/scripts/entrypoint.py
@@ -44,13 +68,6 @@ fi
 python /opt/scripts/jks_sync.py &
 
 cd /opt/gluu/jetty/oxauth
-exec java -jar /opt/jetty/start.jar \
-    -server \
-    -XX:+UnlockExperimentalVMOptions \
-    -XX:+UseCGroupMemoryLimitForHeap \
-    -XX:MaxRAMFraction=$GLUU_MAX_RAM_FRACTION \
-    -XX:+DisableExplicitGC \
-    -Dgluu.base=/etc/gluu \
-    -Dserver.base=/opt/gluu/jetty/oxauth \
-    -Dlog.base=/opt/gluu/jetty/oxauth \
-    -Dpython.home=/opt/jython
+exec java \
+    $(get_java_opts) \
+    -jar /opt/jetty/start.jar
