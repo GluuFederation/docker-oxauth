@@ -30,6 +30,7 @@ Pull the image:
 - `GLUU_KV_PORT`: port of Consul.
 - `GLUU_LDAP_URL`: URL to LDAP in `host:port` format string (i.e. `192.168.100.4:1636`); multiple URLs can be used using comma-separated values (i.e. `192.168.100.1:1636,192.168.100.2:1636`).
 - `GLUU_CUSTOM_OXAUTH_URL`: URL to downloadable custom oxAuth files packed using `.tar.gz` format (deprecated in favor of mounting volume).
+- `GLUU_DEBUG_PORT`: port of remote debugging (if omitted, remote debugging will be disabled).
 
 ## Volumes
 
@@ -68,7 +69,6 @@ There are two ways to run oxAuth with custom files:
         -e GLUU_KV_PORT=8500 \
         -e GLUU_LDAP_URL=ldap.example.com:1636 \
         -e GLUU_CUSTOM_OXAUTH_URL=http://example.com/resources/custom-oxauth.tar.gz \
-        -p 8081:8080 \
         gluufederation/oxauth:3.1.2_dev
     ```
 

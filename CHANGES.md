@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.1_rev1.0.0-beta3
+
+Released on March 14th, 2018.
+
+* Added feature to enable/disable remote debugging of JVM.
+
 ## Version 3.1.1_rev1.0.0-beta2
 
 Released on October 11th, 2017.
