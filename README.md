@@ -4,25 +4,25 @@ A Docker image version of Gluu Server oxAuth.
 
 ## Latest Stable Release
 
-The latest stable release is `gluufederation/oxauth:3.1.3_dev`. Click [here](./CHANGES.md) for archived versions.
+The latest stable release is `gluufederation/oxauth:3.1.3_01`. Click [here](./CHANGES.md) for archived versions.
 
 ## Versioning/Tagging
 
 This image uses its own versioning/tagging format.
 
-    <IMAGE-NAME>:<GLUU-SERVER-VERSION>_<BASELINE_DEV>
+    <IMAGE-NAME>:<GLUU-SERVER-VERSION>_<RELEASE_VERSION>
 
-For example, `gluufederation/oxauth:3.1.3` consists of:
+For example, `gluufederation/oxauth:3.1.3_01` consists of:
 
 - `gluufederation/oxauth` as `<IMAGE_NAME>`: the actual image name
 - `3.1.3` as `GLUU-SERVER-VERSION`: the Gluu Server version as setup reference
-- `_dev` as `<BASELINE_DEV>`: used until official production release
+- `01` as `<RELEASE_VERSION>`
 
 ## Installation
 
 Pull the image:
 
-    docker pull gluufederation/oxauth:3.1.3_dev
+    docker pull gluufederation/oxauth:3.1.3_01
 
 ## Environment Variables
 
@@ -49,7 +49,7 @@ docker run -d \
     -e GLUU_KV_PORT=8500 \
     -e GLUU_LDAP_URL=ldap.example.com:1636 \
     -p 8081:8080 \
-    gluufederation/oxauth:3.1.3_dev
+    gluufederation/oxauth:3.1.3_01
 ```
 
 ## Customizing oxAuth
@@ -69,7 +69,7 @@ There are two ways to run oxAuth with custom files:
         -e GLUU_KV_PORT=8500 \
         -e GLUU_LDAP_URL=ldap.example.com:1636 \
         -e GLUU_CUSTOM_OXAUTH_URL=http://example.com/resources/custom-oxauth.tar.gz \
-        gluufederation/oxauth:3.1.3_dev
+        gluufederation/oxauth:3.1.3_01
     ```
 
     The `.tar.gz` file must consist of the following directories:
@@ -92,5 +92,5 @@ There are two ways to run oxAuth with custom files:
         -v /path/to/custom/pages:/opt/gluu/jetty/oxauth/custom/pages \
         -v /path/to/custom/static:/opt/gluu/jetty/oxauth/custom/static \
         -v /path/to/custom/lib/ext:/opt/gluu/jetty/oxauth/lib/ext \
-        gluufederation/oxauth:3.1.3_dev
+        gluufederation/oxauth:3.1.3_01
     ```
