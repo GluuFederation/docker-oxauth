@@ -3,14 +3,11 @@ import logging
 import os
 import time
 
-import consulate
 import pyDes
-from requests.exceptions import ConnectionError
 
-GLUU_KV_HOST = os.environ.get("GLUU_KV_HOST", "localhost")
-GLUU_KV_PORT = os.environ.get("GLUU_KV_PORT", 8500)
+from gluu_config import ConfigManager
 
-consul = consulate.Consul(host=GLUU_KV_HOST, port=GLUU_KV_PORT)
+config_manager = ConfigManager()
 
 logger = logging.getLogger("jks_sync")
 logger.setLevel(logging.INFO)
@@ -19,34 +16,18 @@ fmt = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
 ch.setFormatter(fmt)
 logger.addHandler(ch)
 
-CONFIG_PREFIX = "gluu/config/"
-
-
-def merge_path(name):
-    # example: `hostname` renamed to `gluu/config/hostname`
-    return "".join([CONFIG_PREFIX, name])
-
-
-def unmerge_path(name):
-    # example: `gluu/config/hostname` renamed to `hostname`
-    return name[len(CONFIG_PREFIX):]
-
-
-def get_config(name, default=None):
-    return consul.kv.get(merge_path(name), default)
-
 
 def jks_created():
-    jks = decrypt_text(get_config("oxauth_jks_base64"), get_config("encoded_salt"))
+    jks = decrypt_text(config_manager.get("oxauth_jks_base64"), config_manager.get("encoded_salt"))
 
-    with open(get_config("oxauth_openid_jks_fn"), "wb") as fd:
+    with open(config_manager.get("oxauth_openid_jks_fn"), "wb") as fd:
         fd.write(jks)
         return True
     return False
 
 
 def should_sync_jks():
-    last_rotation = get_config("oxauth_key_rotated_at")
+    last_rotation = config_manager.get("oxauth_key_rotated_at")
 
     # keys are not rotated yet
     if not last_rotation:
@@ -54,7 +35,7 @@ def should_sync_jks():
 
     # check modification time of local JKS
     try:
-        mtime = int(os.path.getmtime(get_config("oxauth_openid_jks_fn")))
+        mtime = int(os.path.getmtime(config_manager.get("oxauth_openid_jks_fn")))
     except OSError:
         mtime = 0
 
@@ -83,8 +64,6 @@ def main():
             try:
                 if should_sync_jks():
                     sync_jks()
-            except ConnectionError as exc:
-                logger.warn("unable to connect to KV storage; reason={}".format(exc))
             except Exception as exc:
                 logger.warn("got unhandled error; reason={}".format(exc))
 
