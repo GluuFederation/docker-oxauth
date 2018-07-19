@@ -4,7 +4,7 @@ A Docker image version of Gluu Server oxAuth.
 
 ## Latest Stable Release
 
-The latest stable release is `gluufederation/oxauth:3.1.3_01`. Click [here](./CHANGES.md) for archived versions.
+The latest stable release is `gluufederation/oxauth:3.1.3_02`. Click [here](./CHANGES.md) for archived versions.
 
 ## Versioning/Tagging
 
@@ -12,25 +12,35 @@ This image uses its own versioning/tagging format.
 
     <IMAGE-NAME>:<GLUU-SERVER-VERSION>_<RELEASE_VERSION>
 
-For example, `gluufederation/oxauth:3.1.3_01` consists of:
+For example, `gluufederation/oxauth:3.1.3_02` consists of:
 
 - `gluufederation/oxauth` as `<IMAGE_NAME>`: the actual image name
 - `3.1.3` as `GLUU-SERVER-VERSION`: the Gluu Server version as setup reference
-- `01` as `<RELEASE_VERSION>`
+- `02` as `<RELEASE_VERSION>`
 
 ## Installation
 
 Pull the image:
 
-    docker pull gluufederation/oxauth:3.1.3_01
+    docker pull gluufederation/oxauth:3.1.3_02
 
 ## Environment Variables
 
-- `GLUU_KV_HOST`: hostname or IP address of Consul.
-- `GLUU_KV_PORT`: port of Consul.
 - `GLUU_LDAP_URL`: URL to LDAP in `host:port` format string (i.e. `192.168.100.4:1636`); multiple URLs can be used using comma-separated values (i.e. `192.168.100.1:1636,192.168.100.2:1636`).
 - `GLUU_CUSTOM_OXAUTH_URL`: URL to downloadable custom oxAuth files packed using `.tar.gz` format (deprecated in favor of mounting volume).
 - `GLUU_DEBUG_PORT`: port of remote debugging (if omitted, remote debugging will be disabled).
+- `GLUU_CONFIG_ADAPTER`: config backend (either `consul` for Consul KV or `kubernetes` for Kubernetes configmap)
+
+The following environment variables are activated only if `GLUU_CONFIG_ADAPTER` is set to `consul`:
+
+- `GLUU_CONSUL_HOST`: hostname or IP of Consul (default to `localhost`)
+- `GLUU_CONSUL_PORT`: port of Consul (default to `8500`)
+- `GLUU_CONSUL_CONSISTENCY`: Consul consistency mode (choose one of `default`, `consistent`, or `stale`). Default to `stale` mode.
+
+otherwise, if `GLUU_CONFIG_ADAPTER` is set to `kubernetes`:
+
+- `GLUU_KUBERNETES_NAMESPACE`: Kubernetes namespace (default to `default`)
+- `GLUU_KUBERNETES_CONFIGMAP`: Kubernetes configmap name (default to `gluu`)
 
 ## Volumes
 
@@ -45,11 +55,10 @@ Here's an example of how to run the container:
 ```
 docker run -d \
     --name oxauth \
-    -e GLUU_KV_HOST=consul.example.com \
-    -e GLUU_KV_PORT=8500 \
+    -e GLUU_CONSUL_HOST=consul.example.com \
     -e GLUU_LDAP_URL=ldap.example.com:1636 \
     -p 8081:8080 \
-    gluufederation/oxauth:3.1.3_01
+    gluufederation/oxauth:3.1.3_02
 ```
 
 ## Customizing oxAuth
@@ -65,11 +74,10 @@ There are two ways to run oxAuth with custom files:
     ```
     docker run -d \
         --name oxauth \
-        -e GLUU_KV_HOST=consul.example.com \
-        -e GLUU_KV_PORT=8500 \
+        -e GLUU_CONSUL_HOST=consul.example.com \
         -e GLUU_LDAP_URL=ldap.example.com:1636 \
         -e GLUU_CUSTOM_OXAUTH_URL=http://example.com/resources/custom-oxauth.tar.gz \
-        gluufederation/oxauth:3.1.3_01
+        gluufederation/oxauth:3.1.3_02
     ```
 
     The `.tar.gz` file must consist of the following directories:
@@ -86,11 +94,10 @@ There are two ways to run oxAuth with custom files:
     ```
     docker run -d \
         --name oxauth \
-        -e GLUU_KV_HOST=my.consul.domain.com \
-        -e GLUU_KV_PORT=8500 \
+        -e GLUU_CONSUL_HOST=my.consul.domain.com \
         -e GLUU_LDAP_URL=my.ldap.domain.com:1636 \
         -v /path/to/custom/pages:/opt/gluu/jetty/oxauth/custom/pages \
         -v /path/to/custom/static:/opt/gluu/jetty/oxauth/custom/static \
         -v /path/to/custom/lib/ext:/opt/gluu/jetty/oxauth/lib/ext \
-        gluufederation/oxauth:3.1.3_01
+        gluufederation/oxauth:3.1.3_02
     ```
