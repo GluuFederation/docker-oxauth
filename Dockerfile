@@ -7,8 +7,8 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 # ===============
 
 RUN apk update && apk add --no-cache \
-    py-pip \
-    openssl
+    openssl \
+    py-pip
 
 # =====
 # Jetty
@@ -92,6 +92,7 @@ RUN pip install -U pip \
 RUN mkdir -p /etc/certs \
     && mkdir -p /opt/gluu/python/libs \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
+    && mkdir -p ${JETTY_BASE}/oxauth/custom/i18n \
     && mkdir -p /etc/gluu/conf \
     && mkdir -p /opt/templates
 
@@ -110,6 +111,8 @@ ENV GLUU_MAX_RAM_FRACTION 1
 
 VOLUME ${JETTY_BASE}/oxauth/custom/pages
 VOLUME ${JETTY_BASE}/oxauth/custom/static
+VOLUME ${JETTY_BASE}/oxauth/custom/i18n
+VOLUME ${JETTY_BASE}/oxauth/custom/libs
 VOLUME ${JETTY_BASE}/oxauth/lib/ext
 VOLUME ${JETTY_BASE}/oxauth/logs
 
