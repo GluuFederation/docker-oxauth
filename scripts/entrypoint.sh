@@ -16,6 +16,14 @@ download_custom_tar() {
             cp -R /tmp/oxauth/static/ /opt/gluu/jetty/oxauth/custom/
         fi
 
+        if [ -d /tmp/oxauth/i18n ]; then
+            cp -R /tmp/oxauth/i18n/ /opt/gluu/jetty/oxauth/custom/
+        fi
+
+        if [ -d /tmp/oxauth/libs ]; then
+            cp -R /tmp/oxauth/libs/ /opt/gluu/jetty/oxauth/custom/
+        fi
+
         if [ -d /tmp/oxauth/lib/ext ]; then
             cp -R /tmp/oxauth/lib/ext/ /opt/gluu/jetty/oxauth/lib/
         fi
