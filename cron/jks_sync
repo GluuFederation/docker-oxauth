@@ -1,8 +1,0 @@
-# run jks_sync every 10 seconds
-* * * * * root . /opt/jks_sync/env; python /opt/scripts/jks_sync.py >> /var/log/jks_sync.log 2>&1
-* * * * * root sleep 50; . /opt/jks_sync/env; python /opt/scripts/jks_sync.py >> /var/log/jks_sync.log 2>&1
-* * * * * root sleep 40; . /opt/jks_sync/env; python /opt/scripts/jks_sync.py >> /var/log/jks_sync.log 2>&1
-* * * * * root sleep 30; . /opt/jks_sync/env; python /opt/scripts/jks_sync.py >> /var/log/jks_sync.log 2>&1
-* * * * * root sleep 20; . /opt/jks_sync/env; python /opt/scripts/jks_sync.py >> /var/log/jks_sync.log 2>&1
-* * * * * root sleep 10; . /opt/jks_sync/env; python /opt/scripts/jks_sync.py >> /var/log/jks_sync.log 2>&1
-# An empty line is required at the end of this file for a valid cron file.
