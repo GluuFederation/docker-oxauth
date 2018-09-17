@@ -51,7 +51,7 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # ======
 
 ENV OX_VERSION 3.1.4-SNAPSHOT
-ENV OX_BUILD_DATE 2018-09-11
+ENV OX_BUILD_DATE 2018-09-15
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
@@ -78,14 +78,6 @@ ENV TWILIO_VERSION 7.17.6
 RUN mkdir -p ${JETTY_BASE}/oxauth/custom/libs
 RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O ${JETTY_BASE}/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
 
-# ======
-# Python
-# ======
-
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
-
 # ====
 # Tini
 # ====
@@ -93,6 +85,14 @@ RUN pip install -U pip \
 ENV TINI_VERSION v0.18.0
 RUN wget -q https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
+
+# ======
+# Python
+# ======
+
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -U pip \
+    && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # ==========
 # misc stuff
