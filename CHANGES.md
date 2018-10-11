@@ -2,6 +2,24 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.3_05
+
+Released on September 18th, 2018.
+
+* Changed base image to use Alpine 3.8.1.
+
+## Version 3.1.3_04
+
+Released on September 12th, 2018.
+
+* Added feature to connect to secure Consul (HTTPS).
+
+## Version 3.1.3_03
+
+Released on August 31st, 2018.
+
+* Added Tini to handle signal forwarding and reaping zombie processes.
+
 ## Version 3.1.3_02
 
 Released on July 20th, 2018.

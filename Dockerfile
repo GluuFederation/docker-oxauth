@@ -1,4 +1,4 @@
-FROM openjdk:jre-alpine
+FROM openjdk:8-jre-alpine
 
 LABEL maintainer="Gluu Inc. <support@gluu.org>"
 
@@ -8,7 +8,8 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 
 RUN apk update && apk add --no-cache \
     openssl \
-    py-pip
+    py-pip \
+    wget
 
 # =====
 # Jetty
@@ -50,8 +51,8 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # oxAuth
 # ======
 
-ENV OX_VERSION 3.1.3.Final
-ENV OX_BUILD_DATE 2018-04-30
+ENV OX_VERSION 3.1.4.Final
+ENV OX_BUILD_DATE 2018-09-27
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
@@ -78,6 +79,14 @@ ENV TWILIO_VERSION 7.17.6
 RUN mkdir -p ${JETTY_BASE}/oxauth/custom/libs
 RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O ${JETTY_BASE}/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
 
+# ====
+# Tini
+# ====
+
+ENV TINI_VERSION v0.18.0
+RUN wget -q https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static -O /usr/bin/tini \
+    && chmod +x /usr/bin/tini
+
 # ======
 # Python
 # ======
@@ -102,9 +111,19 @@ COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
 COPY conf/ox-ldap.properties.tmpl /opt/templates/
 COPY conf/salt.tmpl /opt/templates/
 
+ENV GLUU_CONFIG_ADAPTER consul
+ENV GLUU_CONSUL_HOST localhost
+ENV GLUU_CONSUL_PORT 8500
+ENV GLUU_CONSUL_CONSISTENCY stale
+ENV GLUU_CONSUL_SCHEME http
+ENV GLUU_CONSUL_VERIFY false
+ENV GLUU_CONSUL_CACERT_FILE /etc/certs/consul_ca.crt
+ENV GLUU_CONSUL_CERT_FILE /etc/certs/consul_client.crt
+ENV GLUU_CONSUL_KEY_FILE /etc/certs/consul_client.key
+ENV GLUU_CONSUL_TOKEN_FILE /etc/certs/consul_token
+ENV GLUU_KUBERNETES_NAMESPACE default
+ENV GLUU_KUBERNETES_CONFIGMAP gluu
 ENV GLUU_LDAP_URL localhost:1636
-ENV GLUU_KV_HOST localhost
-ENV GLUU_KV_PORT 8500
 ENV GLUU_CUSTOM_OXAUTH_URL ""
 ENV PYTHON_HOME /opt/jython
 ENV GLUU_MAX_RAM_FRACTION 1
@@ -119,4 +138,6 @@ VOLUME ${JETTY_BASE}/oxauth/logs
 COPY scripts /opt/scripts
 RUN chmod +x /opt/scripts/entrypoint.sh
 RUN chmod +x /opt/scripts/wait-for-it.sh
+
+ENTRYPOINT ["tini", "--"]
 CMD ["/opt/scripts/wait-for-it.sh", "/opt/scripts/entrypoint.sh"]
