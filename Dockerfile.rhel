@@ -1,13 +1,13 @@
 FROM registry.access.redhat.com/rhel7-minimal
 
-LABEL maintainer="Gluu Inc. <support@gluu.org>"
-
 # =============
 # RHEL packages
 # =============
-RUN microdnf --enablerepo=rhel-server-rhscl-7-rpms --enablerepo=rhel-7-server-rpms install \
-    python27-python-pip openssl wget unzip java-1.8.0-openjdk-headless tar gzip net-tools bind-utils iputils \
-    && microdnf update \
+
+RUN REPOLIST=rhel-7-server-rpms,rhel-server-rhscl-7-rpms \
+    INSTALL_PKGS="python27-python-pip openssl wget unzip java-1.8.0-openjdk-headless tar gzip net-tools bind-utils iputils shadow-utils" \
+    && microdnf -y update --enablerepo rhel-7-server-rpms --enablerepo rhel-server-rhscl-7-rpms --setopt=tsflags=nodocs \
+    && microdnf -y install --enablerepo rhel-7-server-rpms --enablerepo rhel-server-rhscl-7-rpms --setopt=tsflags=nodocs ${INSTALL_PKGS} \
     && microdnf clean all
 
 # =====
@@ -54,12 +54,6 @@ ENV OX_VERSION 3.1.4.Final
 ENV OX_BUILD_DATE 2018-09-27
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
-# the LABEL defined before downloading ox war/jar files to make sure
-# it gets the latest build for specific version
-LABEL vendor="Gluu Federation" \
-      org.gluu.oxauth-server.version="${OX_VERSION}" \
-      org.gluu.oxauth-server.build-date="${OX_BUILD_DATE}"
-
 # Install oxAuth
 RUN wget -q ${OXAUTH_DOWNLOAD_URL} -O /tmp/oxauth.war \
     && mkdir -p ${JETTY_BASE}/oxauth/webapps/oxauth \
@@ -98,7 +92,18 @@ RUN source scl_source enable python27 \
 # ==========
 # misc stuff
 # ==========
-RUN mkdir -p /etc/certs \
+
+LABEL name="oxAuth" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="3.1.4" \
+    release="01" \
+    summary="Gluu's oxAuth app" \
+    description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)" \
+    org.gluu.oxauth-server.version="${OX_VERSION}" \
+    org.gluu.oxauth-server.build-date="${OX_BUILD_DATE}"
+
+RUN mkdir -p /etc/certs /flag \
     && mkdir -p /opt/gluu/python/libs \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/i18n \
@@ -140,10 +145,18 @@ RUN chmod +x /opt/scripts/entrypoint.sh
 RUN chmod +x /opt/scripts/wait-for-it.sh
 RUN mkdir -p /usr/lib/jvm/default-jvm && ln -s /usr/lib/jvm/jre /usr/lib/jvm/default-jvm/jre
 
-# allow root group to write files to directories below
-RUN chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-    && chgrp -R 0 ${JETTY_BASE} && chmod -R g=u ${JETTY_BASE} \
-    && chgrp -R 0 /etc/gluu/conf && chmod -R g=u /etc/gluu/conf
+# create jetty user
+RUN useradd -ms /bin/sh jetty
+# adjust ownership
+RUN chown -R root:jetty /etc/certs \
+    && chown -R root:jetty /etc/gluu \
+    && chown -R jetty:jetty /opt/jetty \
+    && chown -R jetty:jetty /flag \
+    && chown root:jetty /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
+    && chmod -R g+w /etc/certs \
+    && chmod -R g+w /etc/gluu \
+    && chmod -R g+w /usr/lib/jvm/default-jvm/jre/lib/security/cacerts
 
+USER jetty
 ENTRYPOINT ["tini", "--"]
 CMD ["/opt/scripts/wait-for-it.sh", "/opt/scripts/entrypoint.sh"]
