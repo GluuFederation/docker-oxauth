@@ -99,11 +99,9 @@ LABEL name="oxAuth" \
     version="3.1.4" \
     release="01" \
     summary="Gluu's oxAuth app" \
-    description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)" \
-    org.gluu.oxauth-server.version="${OX_VERSION}" \
-    org.gluu.oxauth-server.build-date="${OX_BUILD_DATE}"
+    description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
-RUN mkdir -p /etc/certs /flag \
+RUN mkdir -p /etc/certs /deploy \
     && mkdir -p /opt/gluu/python/libs \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/i18n \
@@ -151,7 +149,7 @@ RUN useradd -ms /bin/sh jetty
 RUN chown -R root:jetty /etc/certs \
     && chown -R root:jetty /etc/gluu \
     && chown -R jetty:jetty /opt/jetty \
-    && chown -R jetty:jetty /flag \
+    && chown -R jetty:jetty /deploy \
     && chown root:jetty /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
     && chmod -R g+w /etc/certs \
     && chmod -R g+w /etc/gluu \

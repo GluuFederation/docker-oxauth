@@ -66,7 +66,7 @@ get_java_opts() {
     echo "${java_opts}"
 }
 
-if [ ! -f /flag/touched ]; then
+if [ ! -f /deploy/touched ]; then
     download_custom_tar
     if [ -f /etc/redhat-release ]; then
         source scl_source enable python27 && python /opt/scripts/entrypoint.py
@@ -74,7 +74,7 @@ if [ ! -f /flag/touched ]; then
         python /opt/scripts/entrypoint.py
     fi
     import_ssl_cert
-    touch /flag/touched
+    touch /deploy/touched
 fi
 
 if [ -f /etc/redhat-release ]; then
