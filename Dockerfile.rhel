@@ -147,8 +147,7 @@ RUN chown -R 1000:1000 /opt/gluu/jetty \
     && chgrp -R 0 /opt/gluu/jetty && chmod -R g=u /opt/gluu/jetty \
     && chgrp -R 0 /deploy && chmod -R g=u /deploy \
     && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-    && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu \
-    && chgrp -R 0 /usr/lib/jvm/jre /usr/lib/jvm/default-jvm/jre && chmod -R g=u /usr/lib/jvm/jre /usr/lib/jvm/default-jvm/jre
+    && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu
 
 # run as non-root user
 USER 1000
