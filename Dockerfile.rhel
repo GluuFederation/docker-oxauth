@@ -108,6 +108,10 @@ RUN mkdir -p /etc/certs /deploy \
     && mkdir -p /etc/gluu/conf \
     && mkdir -p /opt/templates
 
+# license
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/MIT.txt
+
 COPY libs /opt/gluu/python/libs
 COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
