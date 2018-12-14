@@ -1,35 +1,6 @@
 #!/bin/sh
 set -e
 
-download_custom_tar() {
-    if [ ! -z ${GLUU_CUSTOM_OXAUTH_URL} ]; then
-        mkdir -p /tmp/oxauth
-        wget -q ${GLUU_CUSTOM_OXAUTH_URL} -O /tmp/oxauth/custom-oxauth.tar.gz
-        cd /tmp/oxauth
-        tar xf custom-oxauth.tar.gz
-
-        if [ -d /tmp/oxauth/pages ]; then
-            cp -R /tmp/oxauth/pages/ /opt/gluu/jetty/oxauth/custom/
-        fi
-
-        if [ -d /tmp/oxauth/static ]; then
-            cp -R /tmp/oxauth/static/ /opt/gluu/jetty/oxauth/custom/
-        fi
-
-        if [ -d /tmp/oxauth/i18n ]; then
-            cp -R /tmp/oxauth/i18n/ /opt/gluu/jetty/oxauth/custom/
-        fi
-
-        if [ -d /tmp/oxauth/libs ]; then
-            cp -R /tmp/oxauth/libs/ /opt/gluu/jetty/oxauth/custom/
-        fi
-
-        if [ -d /tmp/oxauth/lib/ext ]; then
-            cp -R /tmp/oxauth/lib/ext/ /opt/gluu/jetty/oxauth/lib/
-        fi
-    fi
-}
-
 import_ssl_cert() {
     if [ -f /etc/certs/gluu_https.crt ]; then
         openssl x509 -outform der -in /etc/certs/gluu_https.crt -out /etc/certs/gluu_https.der
@@ -66,11 +37,15 @@ get_java_opts() {
     echo "${java_opts}"
 }
 
-if [ ! -f /touched ]; then
-    download_custom_tar
-    python /opt/scripts/entrypoint.py
-    import_ssl_cert
-    touch /touched
+if [ ! -f /deploy/touched ]; then
+    # backward-compat
+    if [ -f /touched ]; then
+        mv /touched /deploy/touched
+    else
+        python /opt/scripts/entrypoint.py
+        import_ssl_cert
+        touch /deploy/touched
+    fi
 fi
 
 python /opt/scripts/jks_sync.py &

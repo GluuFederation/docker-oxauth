@@ -9,6 +9,7 @@ LABEL maintainer="Gluu Inc. <support@gluu.org>"
 RUN apk update && apk add --no-cache \
     openssl \
     py-pip \
+    shadow \
     wget
 
 # =====
@@ -98,7 +99,7 @@ RUN pip install -U pip \
 # ==========
 # misc stuff
 # ==========
-RUN mkdir -p /etc/certs \
+RUN mkdir -p /etc/certs /deploy \
     && mkdir -p /opt/gluu/python/libs \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
     && mkdir -p ${JETTY_BASE}/oxauth/custom/i18n \
@@ -128,14 +129,24 @@ ENV GLUU_CUSTOM_OXAUTH_URL ""
 ENV PYTHON_HOME /opt/jython
 ENV GLUU_MAX_RAM_FRACTION 1
 
-VOLUME ${JETTY_BASE}/oxauth/custom/pages
-VOLUME ${JETTY_BASE}/oxauth/custom/static
-VOLUME ${JETTY_BASE}/oxauth/custom/i18n
-VOLUME ${JETTY_BASE}/oxauth/custom/libs
-VOLUME ${JETTY_BASE}/oxauth/lib/ext
-VOLUME ${JETTY_BASE}/oxauth/logs
-
 COPY scripts /opt/scripts
 RUN chmod +x /opt/scripts/entrypoint.sh
+
+# create non-root user
+RUN useradd -ms /bin/sh --uid 1000 jetty \
+    && usermod -a -G root jetty
+
+# adjust ownership
+RUN chown -R 1000:1000 /opt/gluu/jetty \
+    && chown -R 1000:1000 /deploy \
+    && chmod -R g+w /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
+    && chgrp -R 0 /opt/gluu/jetty && chmod -R g=u /opt/gluu/jetty \
+    && chgrp -R 0 /deploy && chmod -R g=u /deploy \
+    && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
+    && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu
+
+# run as non-root user
+USER 1000
+
 ENTRYPOINT ["tini", "--"]
 CMD ["/opt/scripts/wait-for-it", "/opt/scripts/entrypoint.sh"]
