@@ -5,9 +5,9 @@ import time
 
 import pyDes
 
-from gluu_config import ConfigManager
+from gluulib import get_manager
 
-config_manager = ConfigManager()
+manager = get_manager()
 
 logger = logging.getLogger("jks_sync")
 logger.setLevel(logging.INFO)
@@ -18,16 +18,16 @@ logger.addHandler(ch)
 
 
 def jks_created():
-    jks = decrypt_text(config_manager.get("oxauth_jks_base64"), config_manager.get("encoded_salt"))
+    jks = decrypt_text(manager.secret.get("oxauth_jks_base64"), manager.secret.get("encoded_salt"))
 
-    with open(config_manager.get("oxauth_openid_jks_fn"), "wb") as fd:
+    with open(manager.config.get("oxauth_openid_jks_fn"), "wb") as fd:
         fd.write(jks)
         return True
     return False
 
 
 def should_sync_jks():
-    last_rotation = config_manager.get("oxauth_key_rotated_at")
+    last_rotation = manager.config.get("oxauth_key_rotated_at")
 
     # keys are not rotated yet
     if not last_rotation:
@@ -35,7 +35,7 @@ def should_sync_jks():
 
     # check modification time of local JKS
     try:
-        mtime = int(os.path.getmtime(config_manager.get("oxauth_openid_jks_fn")))
+        mtime = int(os.path.getmtime(manager.config.get("oxauth_openid_jks_fn")))
     except OSError:
         mtime = 0
 
