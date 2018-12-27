@@ -18,7 +18,13 @@ logger.addHandler(ch)
 
 
 def jks_created():
-    jks = decrypt_text(manager.secret.get("oxauth_jks_base64"), manager.secret.get("encoded_salt"))
+    encoded_salt = ""
+
+    with open("/etc/gluu/conf/salt") as f:
+        txt = f.read()
+        encoded_salt = txt.split("=")[-1].strip()
+
+    jks = decrypt_text(manager.secret.get("oxauth_jks_base64"), encoded_salt)
 
     with open(manager.config.get("oxauth_openid_jks_fn"), "wb") as fd:
         fd.write(jks)

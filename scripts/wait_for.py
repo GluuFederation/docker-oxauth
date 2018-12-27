@@ -2,6 +2,7 @@ import argparse
 import base64
 import logging
 import os
+import re
 import sys
 import time
 
@@ -55,8 +56,19 @@ def wait_for_secret(manager, max_wait_time, sleep_duration):
 
 
 def get_ldap_password(manager):
-    encoded_password = manager.secret.get("encoded_ox_ldap_pw")
-    encoded_salt = manager.secret.get("encoded_salt")
+    encoded_password = ""
+    encoded_salt = ""
+
+    with open("/etc/gluu/conf/ox-ldap.properties") as f:
+        txt = f.read()
+        result = re.findall("bindPassword: (.+)", txt)
+        if result:
+            encoded_password = result[0]
+
+    with open("/etc/gluu/conf/salt") as f:
+        txt = f.read()
+        encoded_salt = txt.split("=")[-1].strip()
+
     cipher = pyDes.triple_des(
         b"{}".format(encoded_salt),
         pyDes.ECB,
