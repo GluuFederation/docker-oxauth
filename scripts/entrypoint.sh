@@ -44,7 +44,7 @@ if [ ! -f /deploy/touched ]; then
     else
         # @TODO: wait_for config & secret
         if [ -f /etc/redhat-release ]; then
-            source scl_source enable ptyhon27 && python /opt/scripts/wait_for.py --deps="config,secret" && python /opt/scripts/entrypoint.py
+            source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="config,secret" && python /opt/scripts/entrypoint.py
         else
             python /opt/scripts/wait_for.py --deps="config,secret" && python /opt/scripts/entrypoint.py
         fi
