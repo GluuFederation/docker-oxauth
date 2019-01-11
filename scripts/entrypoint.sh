@@ -56,12 +56,10 @@ fi
 
 if [ -f /etc/redhat-release ]; then
     source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="ldap"
-    # @TODO: enable after auto-unseal is ready
-    # source scl_source enable python27 && python /opt/scripts/jks_sync.py &
+    source scl_source enable python27 && python /opt/scripts/jks_sync.py &
 else
     python /opt/scripts/wait_for.py --deps="ldap"
-    # @TODO: enable after auto-unseal is ready
-    # python /opt/scripts/jks_sync.py &
+    python /opt/scripts/jks_sync.py &
 fi
 
 cd /opt/gluu/jetty/oxauth
