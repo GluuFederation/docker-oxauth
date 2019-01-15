@@ -44,9 +44,9 @@ if [ ! -f /deploy/touched ]; then
     else
         # @TODO: wait_for config & secret
         if [ -f /etc/redhat-release ]; then
-            source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="config,secret" && python /opt/scripts/entrypoint.py
+            source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="config,secret,ldap" && python /opt/scripts/entrypoint.py
         else
-            python /opt/scripts/wait_for.py --deps="config,secret" && python /opt/scripts/entrypoint.py
+            python /opt/scripts/wait_for.py --deps="config,secret,ldap" && python /opt/scripts/entrypoint.py
         fi
 
         import_ssl_cert
@@ -55,10 +55,8 @@ if [ ! -f /deploy/touched ]; then
 fi
 
 if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="ldap"
     source scl_source enable python27 && python /opt/scripts/jks_sync.py &
 else
-    python /opt/scripts/wait_for.py --deps="ldap"
     python /opt/scripts/jks_sync.py &
 fi
 

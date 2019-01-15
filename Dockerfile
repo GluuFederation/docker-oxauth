@@ -153,21 +153,21 @@ ENV GLUU_MAX_RAM_FRACTION 1
 COPY scripts /opt/scripts
 RUN chmod +x /opt/scripts/entrypoint.sh
 
-# create non-root user
-RUN useradd -ms /bin/sh --uid 1000 jetty \
-    && usermod -a -G root jetty
+# # create non-root user
+# RUN useradd -ms /bin/sh --uid 1000 jetty \
+#     && usermod -a -G root jetty
 
-# adjust ownership
-RUN chown -R 1000:1000 /opt/gluu/jetty \
-    && chown -R 1000:1000 /deploy \
-    && chmod -R g+w /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
-    && chgrp -R 0 /opt/gluu/jetty && chmod -R g=u /opt/gluu/jetty \
-    && chgrp -R 0 /deploy && chmod -R g=u /deploy \
-    && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-    && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu
+# # adjust ownership
+# RUN chown -R 1000:1000 /opt/gluu/jetty \
+#     && chown -R 1000:1000 /deploy \
+#     && chmod -R g+w /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
+#     && chgrp -R 0 /opt/gluu/jetty && chmod -R g=u /opt/gluu/jetty \
+#     && chgrp -R 0 /deploy && chmod -R g=u /deploy \
+#     && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
+#     && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu
 
-# run as non-root user
-USER 1000
+# # run as non-root user
+# USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["/opt/scripts/entrypoint.sh"]
