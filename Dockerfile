@@ -16,7 +16,7 @@ RUN apk update && apk add --no-cache \
 # Jetty
 # =====
 
-ENV JETTY_VERSION 9.4.9.v20180320
+ENV JETTY_VERSION 9.4.12.v20180830
 ENV JETTY_TGZ_URL https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${JETTY_VERSION}/jetty-distribution-${JETTY_VERSION}.tar.gz
 ENV JETTY_HOME /opt/jetty
 ENV JETTY_BASE /opt/gluu/jetty
@@ -52,8 +52,8 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # oxAuth
 # ======
 
-ENV OX_VERSION 3.1.4.Final
-ENV OX_BUILD_DATE 2018-09-27
+ENV OX_VERSION 3.1.5.Final
+ENV OX_BUILD_DATE 2019-01-14
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
@@ -66,7 +66,7 @@ LABEL vendor="Gluu Federation" \
 RUN wget -q ${OXAUTH_DOWNLOAD_URL} -O /tmp/oxauth.war \
     && mkdir -p ${JETTY_BASE}/oxauth/webapps/oxauth \
     && unzip -qq /tmp/oxauth.war -d ${JETTY_BASE}/oxauth/webapps/oxauth \
-    && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/oxauth --add-to-start=server,deploy,annotations,resources,http,http-forwarded,jsp,ext,websocket \
+    && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/oxauth --add-to-start=server,deploy,annotations,resources,http,http-forwarded,threadpool,jsp,ext,websocket \
     && rm -f /tmp/oxauth.war \
     && mv ${JETTY_BASE}/oxauth/webapps/oxauth/WEB-INF/web.xml ${JETTY_BASE}/oxauth/webapps/oxauth/WEB-INF/web.xml.bak
 
@@ -100,17 +100,21 @@ RUN pip install -U pip \
 # misc stuff
 # ==========
 RUN mkdir -p /etc/certs /deploy \
-    && mkdir -p /opt/gluu/python/libs \
-    && mkdir -p ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
-    && mkdir -p ${JETTY_BASE}/oxauth/custom/i18n \
-    && mkdir -p /etc/gluu/conf \
-    && mkdir -p /opt/templates
+    /opt/gluu/python/libs \
+    ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
+    ${JETTY_BASE}/oxauth/custom/i18n \
+    /etc/gluu/conf \
+    /opt/templates
 
 COPY libs /opt/gluu/python/libs
 COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
 COPY conf/ox-ldap.properties.tmpl /opt/templates/
 COPY conf/salt.tmpl /opt/templates/
+COPY conf/fido2 /etc/gluu/conf/fido2
+RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
+    /etc/gluu/conf/fido2/mds/toc \
+    /etc/gluu/conf/fido2/server_metadata
 
 # ==========
 # Config ENV
