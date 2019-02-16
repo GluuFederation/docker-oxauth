@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.4_03
+
+Released on February 16th, 2019.
+
+* Added missing `idp-signing.crt` and `passport-rp.jks` files.
+
 ## Version 3.1.4_02
 
 Released on January 16th, 2019.
