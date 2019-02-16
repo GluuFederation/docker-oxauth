@@ -65,9 +65,27 @@ def render_ssl_key():
             fd.write(ssl_key)
 
 
+def render_idp_signing():
+    cert = config_manager.get("idp3SigningCertificateText")
+    if cert:
+        with open("/etc/certs/idp-signing.crt", "w") as fd:
+            fd.write(cert)
+
+
+def render_passport_rp_jks():
+    jks = decrypt_text(config_manager.get("passport_rp_jks_base64"),
+                       config_manager.get("encoded_salt"))
+
+    if jks:
+        with open("/etc/certs/passport-rp.jks", "w") as fd:
+            fd.write(jks)
+
+
 if __name__ == "__main__":
     render_salt()
     render_ldap_properties()
     render_ssl_cert()
     render_ssl_key()
     sync_ldap_pkcs12()
+    render_idp_signing()
+    render_passport_rp_jks()
