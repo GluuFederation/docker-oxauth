@@ -2,6 +2,30 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.5_01
+
+Released on March 23rd, 2019.
+
+* Upgraded to Gluu Server 3.1.5.
+
+## Version 3.1.4_03
+
+Released on February 16th, 2019.
+
+* Added missing `idp-signing.crt` and `passport-rp.jks` files.
+
+## Version 3.1.4_02
+
+Released on January 16th, 2019.
+
+* Added `http-forwarded` module to Jetty.
+
+## Version 3.1.4_01
+
+Released on November 12th, 2018.
+
+* Upgraded to Gluu Server 3.1.4.
+
 ## Version 3.1.3_05
 
 Released on September 18th, 2018.
