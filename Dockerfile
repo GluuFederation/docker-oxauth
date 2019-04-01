@@ -95,6 +95,13 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt
 
+# =======
+# License
+# =======
+
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/
+
 # ==========
 # misc stuff
 # ==========
@@ -127,15 +134,10 @@ ENV GLUU_LDAP_URL localhost:1636
 ENV GLUU_CUSTOM_OXAUTH_URL ""
 ENV PYTHON_HOME /opt/jython
 ENV GLUU_MAX_RAM_FRACTION 1
-
-VOLUME ${JETTY_BASE}/oxauth/custom/pages
-VOLUME ${JETTY_BASE}/oxauth/custom/static
-VOLUME ${JETTY_BASE}/oxauth/custom/i18n
-VOLUME ${JETTY_BASE}/oxauth/custom/libs
-VOLUME ${JETTY_BASE}/oxauth/lib/ext
-VOLUME ${JETTY_BASE}/oxauth/logs
+ENV GLUU_AUTO_ACCEPT_LICENSE false
 
 COPY scripts /opt/scripts
 RUN chmod +x /opt/scripts/entrypoint.sh
+RUN chmod +x /opt/scripts/license_checker.py
 ENTRYPOINT ["tini", "--"]
-CMD ["/opt/scripts/wait-for-it", "/opt/scripts/entrypoint.sh"]
+CMD ["/opt/scripts/license_checker.py", "/opt/scripts/wait-for-it", "/opt/scripts/entrypoint.sh"]
