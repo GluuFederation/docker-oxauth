@@ -1,5 +1,6 @@
 import base64
 import os
+import re
 
 import pyDes
 
@@ -81,6 +82,48 @@ def render_passport_rp_jks():
             fd.write(jks)
 
 
+def modify_jetty_xml():
+    fn = "/opt/jetty/etc/jetty.xml"
+    with open(fn) as f:
+        txt = f.read()
+
+    # disable contexts
+    updates = re.sub(
+        r'<New id="DefaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler"/>',
+        r'<New id="DefaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler">\n\t\t\t\t <Set name="showContexts">false</Set>\n\t\t\t </New>',
+        txt,
+        flags=re.DOTALL | re.M,
+    )
+
+    # disable Jetty version info
+    updates = re.sub(
+        r'(<Set name="sendServerVersion"><Property name="jetty.httpConfig.sendServerVersion" deprecated="jetty.send.server.version" default=")true(" /></Set>)',
+        r'\1false\2',
+        updates,
+        flags=re.DOTALL | re.M,
+    )
+
+    with open(fn, "w") as f:
+        f.write(updates)
+
+
+def modify_webdefault_xml():
+    fn = "/opt/jetty/etc/webdefault.xml"
+    with open(fn) as f:
+        txt = f.read()
+
+    # disable dirAllowed
+    updates = re.sub(
+        r'(<param-name>dirAllowed</param-name>)(\s*)(<param-value>)true(</param-value>)',
+        r'\1\2\3false\4',
+        txt,
+        flags=re.DOTALL | re.M,
+    )
+
+    with open(fn, "w") as f:
+        f.write(updates)
+
+
 if __name__ == "__main__":
     render_salt()
     render_ldap_properties()
@@ -89,3 +132,5 @@ if __name__ == "__main__":
     sync_ldap_pkcs12()
     render_idp_signing()
     render_passport_rp_jks()
+    modify_jetty_xml()
+    modify_webdefault_xml()

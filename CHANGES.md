@@ -2,6 +2,13 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.5_02
+
+Released on April 9th, 2019.
+
+* Added license info on container startup.
+* Disabled `sendServerVersion` config of Jetty server.
+
 ## Version 3.1.5_01
 
 Released on March 23rd, 2019.
