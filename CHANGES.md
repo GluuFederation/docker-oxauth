@@ -15,6 +15,12 @@ Released on March 23rd, 2019.
 
 * Upgraded to Gluu Server 3.1.5.
 
+## Version 3.1.4_04
+
+Released on April 4th, 2019.
+
+* Added license info during container run.
+
 ## Version 3.1.4_03
 
 Released on February 16th, 2019.
