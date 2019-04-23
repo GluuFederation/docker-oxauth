@@ -16,6 +16,9 @@ fmt = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
 ch.setFormatter(fmt)
 logger.addHandler(ch)
 
+# delay between JKS sync (in seconds)
+GLUU_SYNC_JKS_INTERVAL = os.environ.get("GLUU_SYNC_JKS_INTERVAL", 30)
+
 
 def jks_created():
     encoded_salt = ""
@@ -66,6 +69,14 @@ def decrypt_text(encrypted_text, key):
 
 def main():
     try:
+        sync_interval = int(GLUU_SYNC_JKS_INTERVAL)
+        # if value is lower than 1, use default
+        if sync_interval < 1:
+            sync_interval = 30
+    except ValueError:
+        sync_interval = 30
+
+    try:
         while True:
             try:
                 if should_sync_jks():
@@ -74,7 +85,7 @@ def main():
                 logger.warn("got unhandled error; reason={}".format(exc))
 
             # sane interval
-            time.sleep(60)
+            time.sleep(sync_interval)
     except KeyboardInterrupt:
         logger.warn("canceled by user; exiting ...")
 
