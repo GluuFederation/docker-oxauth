@@ -2,6 +2,14 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 3.1.5_03
+
+* Added `GLUU_SYNC_JKS_INTERVAL` env var.
+
+Released on April 23rd, 2019.
+
+* Added license info on container startup.
+
 ## Version 3.1.5_02
 
 Released on April 9th, 2019.

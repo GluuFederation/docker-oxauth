@@ -49,8 +49,8 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # oxAuth
 # ======
 
-ENV OX_VERSION 3.1.6.Final
-ENV OX_BUILD_DATE 2019-03-19
+ENV OX_VERSION 3.1.6.sp1
+ENV OX_BUILD_DATE 2019-04-22
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
@@ -162,6 +162,7 @@ ENV GLUU_LDAP_URL localhost:1636
 ENV GLUU_MAX_RAM_FRACTION 1
 ENV GLUU_WAIT_MAX_TIME 300
 ENV GLUU_WAIT_SLEEP_DURATION 5
+ENV GLUU_JKS_SYNC_INTERVAL 30
 ENV PYTHON_HOME /opt/jython
 
 COPY scripts /opt/scripts
