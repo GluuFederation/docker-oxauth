@@ -49,9 +49,9 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # oxAuth
 # ======
 
-ENV OX_VERSION 3.1.6.sp1
-ENV OX_BUILD_DATE 2019-04-29
-ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/xdi/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
+ENV OX_VERSION 4.0.0-SNAPSHOT
+ENV OX_BUILD_DATE 2019-04-30
+ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/gluu/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
 # it gets the latest build for specific version
@@ -111,7 +111,7 @@ RUN mkdir -p /etc/certs /deploy \
 COPY libs /opt/gluu/python/libs
 COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
-COPY conf/ox-ldap.properties.tmpl /opt/templates/
+COPY conf/gluu-ldap.properties.tmpl /opt/templates/
 COPY conf/salt.tmpl /opt/templates/
 COPY conf/fido2 /etc/gluu/conf/fido2
 RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \

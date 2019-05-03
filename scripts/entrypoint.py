@@ -22,17 +22,19 @@ def render_salt():
 
 
 def render_ldap_properties():
-    with open("/opt/templates/ox-ldap.properties.tmpl") as fr:
+    with open("/opt/templates/gluu-ldap.properties.tmpl") as fr:
         txt = fr.read()
 
-        with open("/etc/gluu/conf/ox-ldap.properties", "w") as fw:
+        with open("/etc/gluu/conf/gluu-ldap.properties", "w") as fw:
             rendered_txt = txt % {
                 "ldap_binddn": manager.config.get("ldap_binddn"),
                 "encoded_ox_ldap_pw": manager.secret.get("encoded_ox_ldap_pw"),
-                "inumAppliance": manager.config.get("inumAppliance"),
+                # "inumAppliance": manager.config.get("inumAppliance"),
                 "ldap_url": GLUU_LDAP_URL,
                 "ldapTrustStoreFn": manager.config.get("ldapTrustStoreFn"),
-                "encoded_ldapTrustStorePass": manager.secret.get("encoded_ldapTrustStorePass")
+                "encoded_ldapTrustStorePass": manager.secret.get("encoded_ldapTrustStorePass"),
+                "gluuOptPythonFolder": "/opt/gluu/python",
+                "certFolder": "/etc/certs",
             }
             fw.write(rendered_txt)
 
