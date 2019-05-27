@@ -50,7 +50,7 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # ======
 
 ENV OX_VERSION 4.0.0-SNAPSHOT
-ENV OX_BUILD_DATE 2019-05-07
+ENV OX_BUILD_DATE 2019-05-23
 ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/gluu/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
 
 # the LABEL defined before downloading ox war/jar files to make sure
@@ -98,27 +98,6 @@ RUN mkdir -p /licenses
 COPY LICENSE /licenses/
 
 # ==========
-# misc stuff
-# ==========
-
-RUN mkdir -p /etc/certs /deploy \
-    /opt/gluu/python/libs \
-    ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
-    ${JETTY_BASE}/oxauth/custom/i18n \
-    /etc/gluu/conf \
-    /opt/templates
-
-COPY libs /opt/gluu/python/libs
-COPY certs /etc/certs
-COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
-COPY conf/gluu-ldap.properties.tmpl /opt/templates/
-COPY conf/salt.tmpl /opt/templates/
-COPY conf/fido2 /etc/gluu/conf/fido2
-RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
-    /etc/gluu/conf/fido2/mds/toc \
-    /etc/gluu/conf/fido2/server_metadata
-
-# ==========
 # Config ENV
 # ==========
 
@@ -159,14 +138,34 @@ ENV GLUU_SECRET_KUBERNETES_USE_KUBE_CONFIG false
 # ===========
 
 ENV GLUU_LDAP_URL localhost:1636
+ENV GLUU_COUCHBASE_URL localhost
 ENV GLUU_MAX_RAM_FRACTION 1
 ENV GLUU_WAIT_MAX_TIME 300
 ENV GLUU_WAIT_SLEEP_DURATION 5
 ENV GLUU_JKS_SYNC_INTERVAL 30
 ENV PYTHON_HOME /opt/jython
 
-COPY scripts /opt/scripts
-RUN chmod +x /opt/scripts/entrypoint.sh
+# ==========
+# misc stuff
+# ==========
+
+RUN mkdir -p /etc/certs /deploy \
+    /opt/gluu/python/libs \
+    ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
+    ${JETTY_BASE}/oxauth/custom/i18n \
+    /etc/gluu/conf \
+    /app/templates
+
+COPY libs /opt/gluu/python/libs
+COPY certs /etc/certs
+COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
+COPY conf/*.tmpl /app/templates/
+COPY conf/fido2 /etc/gluu/conf/fido2
+RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
+    /etc/gluu/conf/fido2/mds/toc \
+    /etc/gluu/conf/fido2/server_metadata
+
+COPY scripts /app/scripts
 
 # # create non-root user
 # RUN useradd -ms /bin/sh --uid 1000 jetty \
@@ -185,4 +184,4 @@ RUN chmod +x /opt/scripts/entrypoint.sh
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/opt/scripts/entrypoint.sh"]
+CMD ["sh", "/app/scripts/entrypoint.sh"]

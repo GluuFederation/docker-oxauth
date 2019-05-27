@@ -46,10 +46,12 @@ get_java_opts() {
     echo "${java_opts}"
 }
 
+deps="config,secret,${GLUU_PERSISTENCE_TYPE}"
+
 if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && python /opt/scripts/wait_for.py --deps="config,secret,ldap"
+    source scl_source enable python27 && python /app/scripts/wait_for.py --deps="$deps"
 else
-    python /opt/scripts/wait_for.py --deps="config,secret,ldap"
+    python /app/scripts/wait_for.py --deps="$deps"
 fi
 
 if [ ! -f /deploy/touched ]; then
@@ -58,9 +60,9 @@ if [ ! -f /deploy/touched ]; then
         mv /touched /deploy/touched
     else
         if [ -f /etc/redhat-release ]; then
-            source scl_source enable python27 && python /opt/scripts/entrypoint.py
+            source scl_source enable python27 && python /app/scripts/entrypoint.py
         else
-            python /opt/scripts/entrypoint.py
+            python /app/scripts/entrypoint.py
         fi
 
         import_ssl_cert
@@ -69,9 +71,9 @@ if [ ! -f /deploy/touched ]; then
 fi
 
 if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && python /opt/scripts/jks_sync.py &
+    source scl_source enable python27 && python /app/scripts/jks_sync.py &
 else
-    python /opt/scripts/jks_sync.py &
+    python /app/scripts/jks_sync.py &
 fi
 
 cd /opt/gluu/jetty/oxauth
