@@ -85,6 +85,43 @@ def render_couchbase_properties():
             fw.write(rendered_txt)
 
 
+def render_hybrid_properties():
+    # storages: couchbase, ldap
+    # storage.default: ldap
+    # storage.ldap.mapping: user
+    # storage.couchbase.mapping: cache, people, groups, site, statistic
+    mappings = ("default", "user", "cache", "site", "statistic")
+    ldap_mapping = os.environ.get("GLUU_PERSISTENCE_LDAP_MAPPING", "default")
+    default_storage = "ldap" if ldap_mapping == "default" else "couchbase"
+
+    out = [
+        "storages: ldap, couchbase",
+        "storage.default: {}".format(default_storage),
+    ]
+
+    # add ldap mappings (if any)
+    ldap_mappings = [ldap_mapping]
+    if ldap_mappings:
+        out.append("storage.ldap.mapping: {}".format(
+            ", ".join(ldap_mappings)
+        ))
+
+    # add couchbase mappings (if any)
+    couchbase_mappings = [
+        mapping for mapping in mappings if mapping != ldap_mapping
+    ]
+    if couchbase_mappings:
+        out.append("storage.couchbase.mapping: {}".format(
+            ", ".join(couchbase_mappings)
+        ))
+
+    # replace `user` mapping
+    txt = "\n".join(out).replace("user", "people, groups")
+
+    with open("/etc/gluu/conf/gluu-hybrid.properties", "w") as fw:
+        fw.write(txt)
+
+
 def render_gluu_properties():
     with open("/app/templates/gluu.properties.tmpl") as fr:
         txt = fr.read()
@@ -212,16 +249,28 @@ def encrypt_text(text, key):
     return base64.b64encode(encrypted_text)
 
 
-if __name__ == "__main__":
+def main():
     render_salt()
     render_gluu_properties()
-    render_ldap_properties()
-    render_couchbase_properties()
+
+    if GLUU_PERSISTENCE_TYPE in ("ldap", "hybrid"):
+        render_ldap_properties()
+        sync_ldap_pkcs12()
+
+    if GLUU_PERSISTENCE_TYPE in ("couchbase", "hybrid"):
+        render_couchbase_properties()
+        sync_couchbase_pkcs12()
+
+    if GLUU_PERSISTENCE_TYPE == "hybrid":
+        render_hybrid_properties()
+
     render_ssl_cert()
     render_ssl_key()
-    sync_ldap_pkcs12()
-    sync_couchbase_pkcs12()
     render_idp_signing()
     render_passport_rp_jks()
     modify_jetty_xml()
     modify_webdefault_xml()
+
+
+if __name__ == "__main__":
+    main()
