@@ -143,11 +143,9 @@ def check_couchbase_document(cbm):
 
     query = "SELECT COUNT(*) FROM `{}`".format(bucket)
     req = cbm.exec_query(query)
-    logger.info("status code for COUNT: {}".format(req.status_code))
     if not req.ok:
         checked = False
         error = json.loads(req.text)["errors"][0]["msg"]
-    logger.info("data for COUNT: {}".format(req.json()))
     return checked, error
 
 
