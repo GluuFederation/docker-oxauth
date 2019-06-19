@@ -6,7 +6,7 @@ Here you can see an overview of changes between each release.
 
 Released on June 19th, 2019.
 
-* Upgraded `oxauth.war` to 3.1.6.sp1.
+* Upgraded  `oxauth.war` to 3.1.6.sp1.
 
 ## Version 3.1.6_02
 
