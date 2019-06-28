@@ -132,17 +132,17 @@ def render_hybrid_properties():
         if name != ldap_mapping
     ]
 
-    out = [
+    out = "\n".join([
         "storages: ldap, couchbase",
         "storage.default: {}".format(default_storage),
         "storage.ldap.mapping: {}".format(ldap_mapping),
         "storage.couchbase.mapping: {}".format(
             ", ".join(filter(None, couchbase_mappings))
         ),
-    ]
+    ]).replace("user", "people, groups")
 
     with open("/etc/gluu/conf/gluu-hybrid.properties", "w") as fw:
-        fw.write("\n".join(out))
+        fw.write(out)
 
 
 def render_gluu_properties():
