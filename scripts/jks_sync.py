@@ -4,7 +4,6 @@ import os
 import time
 
 from pygluu.containerlib import get_manager
-from pygluu.containerlib.utils import decode_text
 
 from settings import LOGGING_CONFIG
 
@@ -15,13 +14,9 @@ logger = logging.getLogger("jks_sync")
 
 
 def jks_created():
-    jks = decode_text(manager.secret.get("oxauth_jks_base64"),
-                      manager.secret.get("encoded_salt"))
-
-    with open(manager.config.get("oxauth_openid_jks_fn"), "wb") as fd:
-        fd.write(jks)
-        return True
-    return False
+    dest = manager.config.get("oxauth_openid_jks_fn")
+    manager.secret.to_file("oxauth_jks_base64", dest, decode=True, binary_mode=True)
+    return True
 
 
 def should_sync_jks():

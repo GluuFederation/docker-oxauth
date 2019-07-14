@@ -2,7 +2,6 @@ import os
 import re
 
 from pygluu.containerlib import get_manager
-from pygluu.containerlib.utils import decode_text
 
 GLUU_LDAP_URL = os.environ.get("GLUU_LDAP_URL", "localhost:1636")
 GLUU_COUCHBASE_URL = os.environ.get("GLUU_COUCHBASE_URL", "localhost")
@@ -157,48 +156,30 @@ def render_gluu_properties():
 
 
 def sync_ldap_pkcs12():
-    pkcs = decode_text(manager.secret.get("ldap_pkcs12_base64"),
-                       manager.secret.get("encoded_salt"))
-
-    with open(manager.config.get("ldapTrustStoreFn"), "wb") as fw:
-        fw.write(pkcs)
+    dest = manager.config.get("ldapTrustStoreFn")
+    manager.secret.to_file("ldap_pkcs12_base64", dest, decode=True, binary_mode=True)
 
 
 def sync_couchbase_pkcs12():
-    with open(manager.config.get("couchbaseTrustStoreFn"), "wb") as fw:
-        encoded_pkcs = manager.secret.get("couchbase_pkcs12_base64")
-        pkcs = decode_text(encoded_pkcs, manager.secret.get("encoded_salt"))
-        fw.write(pkcs)
+    dest = manager.config.get("couchbaseTrustStoreFn")
+    manager.secret.to_file("couchbase_pkcs12_base64", dest, decode=True, binary_mode=True)
 
 
 def render_ssl_cert():
-    ssl_cert = manager.secret.get("ssl_cert")
-    if ssl_cert:
-        with open("/etc/certs/gluu_https.crt", "w") as fd:
-            fd.write(ssl_cert)
+    manager.secret.to_file("ssl_cert", "/etc/certs/gluu_https.crt")
 
 
 def render_ssl_key():
-    ssl_key = manager.secret.get("ssl_key")
-    if ssl_key:
-        with open("/etc/certs/gluu_https.key", "w") as fd:
-            fd.write(ssl_key)
+    manager.secret.to_file("ssl_key", "/etc/certs/gluu_https.key")
 
 
 def render_idp_signing():
-    cert = manager.secret.get("idp3SigningCertificateText")
-    if cert:
-        with open("/etc/certs/idp-signing.crt", "w") as fd:
-            fd.write(cert)
+    manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
 
 
 def render_passport_rp_jks():
-    jks = decode_text(manager.secret.get("passport_rp_jks_base64"),
-                      manager.secret.get("encoded_salt"))
-
-    if jks:
-        with open("/etc/certs/passport-rp.jks", "w") as fd:
-            fd.write(jks)
+    manager.secret.to_file("passport_rp_jks_base64", "/etc/certs/passport-rp.jks",
+                           decode=True, binary_mode=True)
 
 
 def modify_jetty_xml():
