@@ -10,7 +10,8 @@ RUN apk update && apk add --no-cache \
     openssl \
     py-pip \
     shadow \
-    wget
+    wget \
+    git
 
 # =====
 # Jetty
@@ -86,7 +87,6 @@ RUN wget -q https://github.com/krallin/tini/releases/download/${TINI_VERSION}/ti
 # Python
 # ======
 
-RUN apk add --no-cache git
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt
