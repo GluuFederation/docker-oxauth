@@ -1,33 +1,22 @@
-import base64
 import logging
+import logging.config
 import os
 import time
 
-import pyDes
+from pygluu.containerlib import get_manager
+from pygluu.containerlib.utils import decode_text
 
-from gluulib import get_manager
+from settings import LOGGING_CONFIG
 
 manager = get_manager()
 
+logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("jks_sync")
-logger.setLevel(logging.INFO)
-ch = logging.StreamHandler()
-fmt = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
-ch.setFormatter(fmt)
-logger.addHandler(ch)
-
-# delay between JKS sync (in seconds)
-GLUU_SYNC_JKS_INTERVAL = os.environ.get("GLUU_SYNC_JKS_INTERVAL", 30)
 
 
 def jks_created():
-    encoded_salt = ""
-
-    with open("/etc/gluu/conf/salt") as f:
-        txt = f.read()
-        encoded_salt = txt.split("=")[-1].strip()
-
-    jks = decrypt_text(manager.secret.get("oxauth_jks_base64"), encoded_salt)
+    jks = decode_text(manager.secret.get("oxauth_jks_base64"),
+                      manager.secret.get("encoded_salt"))
 
     with open(manager.config.get("oxauth_openid_jks_fn"), "wb") as fd:
         fd.write(jks)
@@ -60,16 +49,12 @@ def sync_jks():
     return False
 
 
-def decrypt_text(encrypted_text, key):
-    cipher = pyDes.triple_des(b"{}".format(key), pyDes.ECB,
-                              padmode=pyDes.PAD_PKCS5)
-    encrypted_text = b"{}".format(base64.b64decode(encrypted_text))
-    return cipher.decrypt(encrypted_text)
-
-
 def main():
+    # delay between JKS sync (in seconds)
+    sync_interval = os.environ.get("GLUU_SYNC_JKS_INTERVAL", 30)
+
     try:
-        sync_interval = int(GLUU_SYNC_JKS_INTERVAL)
+        sync_interval = int(sync_interval)
         # if value is lower than 1, use default
         if sync_interval < 1:
             sync_interval = 30

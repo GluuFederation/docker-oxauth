@@ -1,12 +1,8 @@
-import base64
 import os
 import re
-import shlex
-import subprocess
 
-import pyDes
-
-from gluulib import get_manager
+from pygluu.containerlib import get_manager
+from pygluu.containerlib.utils import decode_text
 
 GLUU_LDAP_URL = os.environ.get("GLUU_LDAP_URL", "localhost:1636")
 GLUU_COUCHBASE_URL = os.environ.get("GLUU_COUCHBASE_URL", "localhost")
@@ -160,36 +156,18 @@ def render_gluu_properties():
             fw.write(rendered_txt)
 
 
-def decrypt_text(encrypted_text, key):
-    cipher = pyDes.triple_des(b"{}".format(key), pyDes.ECB,
-                              padmode=pyDes.PAD_PKCS5)
-    encrypted_text = b"{}".format(base64.b64decode(encrypted_text))
-    return cipher.decrypt(encrypted_text)
-
-
 def sync_ldap_pkcs12():
-    pkcs = decrypt_text(manager.secret.get("ldap_pkcs12_base64"),
-                        manager.secret.get("encoded_salt"))
+    pkcs = decode_text(manager.secret.get("ldap_pkcs12_base64"),
+                       manager.secret.get("encoded_salt"))
 
     with open(manager.config.get("ldapTrustStoreFn"), "wb") as fw:
         fw.write(pkcs)
 
 
-def exec_cmd(cmd):
-    args = shlex.split(cmd)
-    popen = subprocess.Popen(args,
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-    stdout, stderr = popen.communicate()
-    retcode = popen.returncode
-    return stdout, stderr, retcode
-
-
 def sync_couchbase_pkcs12():
     with open(manager.config.get("couchbaseTrustStoreFn"), "wb") as fw:
         encoded_pkcs = manager.secret.get("couchbase_pkcs12_base64")
-        pkcs = decrypt_text(encoded_pkcs, manager.secret.get("encoded_salt"))
+        pkcs = decode_text(encoded_pkcs, manager.secret.get("encoded_salt"))
         fw.write(pkcs)
 
 
@@ -215,8 +193,8 @@ def render_idp_signing():
 
 
 def render_passport_rp_jks():
-    jks = decrypt_text(manager.secret.get("passport_rp_jks_base64"),
-                       manager.secret.get("encoded_salt"))
+    jks = decode_text(manager.secret.get("passport_rp_jks_base64"),
+                      manager.secret.get("encoded_salt"))
 
     if jks:
         with open("/etc/certs/passport-rp.jks", "w") as fd:
@@ -263,13 +241,6 @@ def modify_webdefault_xml():
 
     with open(fn, "w") as f:
         f.write(updates)
-
-
-def encrypt_text(text, key):
-    cipher = pyDes.triple_des(b"{}".format(key), pyDes.ECB,
-                              padmode=pyDes.PAD_PKCS5)
-    encrypted_text = cipher.encrypt(b"{}".format(text))
-    return base64.b64encode(encrypted_text)
 
 
 def main():
