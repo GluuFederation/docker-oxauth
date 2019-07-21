@@ -1,6 +1,4 @@
-FROM openjdk:8-jre-alpine3.9
-
-LABEL maintainer="Gluu Inc. <support@gluu.org>"
+FROM adoptopenjdk/openjdk11:jre-11.0.4_11-alpine
 
 # ===============
 # Alpine packages
@@ -17,14 +15,13 @@ RUN apk update && apk add --no-cache \
 # Jetty
 # =====
 
-ENV JETTY_VERSION 9.4.15.v20190215
-ENV JETTY_TGZ_URL https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${JETTY_VERSION}/jetty-distribution-${JETTY_VERSION}.tar.gz
-ENV JETTY_HOME /opt/jetty
-ENV JETTY_BASE /opt/gluu/jetty
-ENV JETTY_USER_HOME_LIB /home/jetty/lib
+ENV JETTY_VERSION=9.4.19.v20190610 \
+    JETTY_HOME=/opt/jetty \
+    JETTY_BASE=/opt/gluu/jetty \
+    JETTY_USER_HOME_LIB=/home/jetty/lib
 
 # Install jetty
-RUN wget -q ${JETTY_TGZ_URL} -O /tmp/jetty.tar.gz \
+RUN wget -q https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${JETTY_VERSION}/jetty-distribution-${JETTY_VERSION}.tar.gz -O /tmp/jetty.tar.gz \
     && mkdir -p /opt \
     && tar -xzf /tmp/jetty.tar.gz -C /opt \
     && mv /opt/jetty-distribution-${JETTY_VERSION} ${JETTY_HOME} \
@@ -39,9 +36,8 @@ EXPOSE 8080
 # Jython
 # ======
 
-ENV JYTHON_VERSION 2.7.2a1
-ENV JYTHON_DOWNLOAD_URL https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.jar
-RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
+ENV JYTHON_VERSION=2.7.2a1
+RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.jar -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython -t standard -e ensurepip \
     && rm -f /tmp/jython-installer.jar
@@ -50,18 +46,18 @@ RUN wget -q ${JYTHON_DOWNLOAD_URL} -O /tmp/jython-installer.jar \
 # oxAuth
 # ======
 
-ENV OX_VERSION 4.0.0-SNAPSHOT
-ENV OX_BUILD_DATE 2019-07-10
-ENV OXAUTH_DOWNLOAD_URL https://ox.gluu.org/maven/org/gluu/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war
+ENV OX_VERSION=4.0.b1 \
+    OX_BUILD_DATE=2019-07-19
 
 # the LABEL defined before downloading ox war/jar files to make sure
 # it gets the latest build for specific version
-LABEL vendor="Gluu Federation" \
-      org.gluu.oxauth-server.version="${OX_VERSION}" \
-      org.gluu.oxauth-server.build-date="${OX_BUILD_DATE}"
+LABEL maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    org.gluu.oxauth-server.version="${OX_VERSION}" \
+    org.gluu.oxauth-server.build-date="${OX_BUILD_DATE}"
 
 # Install oxAuth
-RUN wget -q ${OXAUTH_DOWNLOAD_URL} -O /tmp/oxauth.war \
+RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war -O /tmp/oxauth.war \
     && mkdir -p ${JETTY_BASE}/oxauth/webapps/oxauth \
     && unzip -qq /tmp/oxauth.war -d ${JETTY_BASE}/oxauth/webapps/oxauth \
     && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/oxauth --add-to-start=server,deploy,annotations,resources,http,http-forwarded,threadpool,jsp,ext,websocket \
@@ -72,15 +68,14 @@ RUN wget -q ${OXAUTH_DOWNLOAD_URL} -O /tmp/oxauth.war \
 # ===========
 
 ENV TWILIO_VERSION 7.17.6
-RUN mkdir -p ${JETTY_BASE}/oxauth/custom/libs
-RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O ${JETTY_BASE}/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
+RUN mkdir -p ${JETTY_BASE}/oxauth/custom/libs \
+    && wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O ${JETTY_BASE}/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
 
 # ====
 # Tini
 # ====
 
-ENV TINI_VERSION v0.18.0
-RUN wget -q https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static -O /usr/bin/tini \
+RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
 
 # ======
@@ -89,7 +84,8 @@ RUN wget -q https://github.com/krallin/tini/releases/download/${TINI_VERSION}/ti
 
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+    && pip install --no-cache-dir -r /tmp/requirements.txt \
+    && apk del git
 
 # =======
 # License
@@ -102,59 +98,59 @@ COPY LICENSE /licenses/
 # Config ENV
 # ==========
 
-ENV GLUU_CONFIG_ADAPTER consul
-ENV GLUU_CONFIG_CONSUL_HOST localhost
-ENV GLUU_CONFIG_CONSUL_PORT 8500
-ENV GLUU_CONFIG_CONSUL_CONSISTENCY stale
-ENV GLUU_CONFIG_CONSUL_SCHEME http
-ENV GLUU_CONFIG_CONSUL_VERIFY false
-ENV GLUU_CONFIG_CONSUL_CACERT_FILE /etc/certs/consul_ca.crt
-ENV GLUU_CONFIG_CONSUL_CERT_FILE /etc/certs/consul_client.crt
-ENV GLUU_CONFIG_CONSUL_KEY_FILE /etc/certs/consul_client.key
-ENV GLUU_CONFIG_CONSUL_TOKEN_FILE /etc/certs/consul_token
-ENV GLUU_CONFIG_KUBERNETES_NAMESPACE default
-ENV GLUU_CONFIG_KUBERNETES_CONFIGMAP gluu
-ENV GLUU_CONFIG_KUBERNETES_USE_KUBE_CONFIG false
+ENV GLUU_CONFIG_ADAPTER=consul \
+    GLUU_CONFIG_CONSUL_HOST=localhost \
+    GLUU_CONFIG_CONSUL_PORT=8500 \
+    GLUU_CONFIG_CONSUL_CONSISTENCY=stale \
+    GLUU_CONFIG_CONSUL_SCHEME=http \
+    GLUU_CONFIG_CONSUL_VERIFY=false \
+    GLUU_CONFIG_CONSUL_CACERT_FILE=/etc/certs/consul_ca.crt \
+    GLUU_CONFIG_CONSUL_CERT_FILE=/etc/certs/consul_client.crt \
+    GLUU_CONFIG_CONSUL_KEY_FILE=/etc/certs/consul_client.key \
+    GLUU_CONFIG_CONSUL_TOKEN_FILE=/etc/certs/consul_token \
+    GLUU_CONFIG_KUBERNETES_NAMESPACE=default \
+    GLUU_CONFIG_KUBERNETES_CONFIGMAP=gluu \
+    GLUU_CONFIG_KUBERNETES_USE_KUBE_CONFIG=false
 
 # ==========
 # Secret ENV
 # ==========
 
-ENV GLUU_SECRET_ADAPTER vault
-ENV GLUU_SECRET_VAULT_SCHEME http
-ENV GLUU_SECRET_VAULT_HOST localhost
-ENV GLUU_SECRET_VAULT_PORT 8200
-ENV GLUU_SECRET_VAULT_VERIFY false
-ENV GLUU_SECRET_VAULT_ROLE_ID_FILE /etc/certs/vault_role_id
-ENV GLUU_SECRET_VAULT_SECRET_ID_FILE /etc/certs/vault_secret_id
-ENV GLUU_SECRET_VAULT_CERT_FILE /etc/certs/vault_client.crt
-ENV GLUU_SECRET_VAULT_KEY_FILE /etc/certs/vault_client.key
-ENV GLUU_SECRET_VAULT_CACERT_FILE /etc/certs/vault_ca.crt
-ENV GLUU_SECRET_KUBERNETES_NAMESPACE default
-ENV GLUU_SECRET_KUBERNETES_SECRET gluu
-ENV GLUU_SECRET_KUBERNETES_USE_KUBE_CONFIG false
+ENV GLUU_SECRET_ADAPTER=vault \
+    GLUU_SECRET_VAULT_SCHEME=http \
+    GLUU_SECRET_VAULT_HOST=localhost \
+    GLUU_SECRET_VAULT_PORT=8200 \
+    GLUU_SECRET_VAULT_VERIFY=false \
+    GLUU_SECRET_VAULT_ROLE_ID_FILE=/etc/certs/vault_role_id \
+    GLUU_SECRET_VAULT_SECRET_ID_FILE=/etc/certs/vault_secret_id \
+    GLUU_SECRET_VAULT_CERT_FILE=/etc/certs/vault_client.crt \
+    GLUU_SECRET_VAULT_KEY_FILE=/etc/certs/vault_client.key \
+    GLUU_SECRET_VAULT_CACERT_FILE=/etc/certs/vault_ca.crt \
+    GLUU_SECRET_KUBERNETES_NAMESPACE=default \
+    GLUU_SECRET_KUBERNETES_SECRET=gluu \
+    GLUU_SECRET_KUBERNETES_USE_KUBE_CONFIG=false
 
 # ===============
 # Persistence ENV
 # ===============
 
 # available options: couchbase, ldap, hybrid
-ENV GLUU_PERSISTENCE_TYPE ldap
 # only takes affect when GLUU_PERSISTENCE_TYPE is hybrid
 # available options: default, user, cache, site, statistic
-ENV GLUU_PERSISTENCE_LDAP_MAPPING default
-ENV GLUU_COUCHBASE_URL localhost
-ENV GLUU_LDAP_URL localhost:1636
+ENV GLUU_PERSISTENCE_TYPE=ldap \
+    GLUU_PERSISTENCE_LDAP_MAPPING=default \
+    GLUU_COUCHBASE_URL=localhost \
+    GLUU_LDAP_URL=localhost:1636
 
 # ===========
 # Generic ENV
 # ===========
 
-ENV GLUU_MAX_RAM_FRACTION 1
-ENV GLUU_WAIT_MAX_TIME 300
-ENV GLUU_WAIT_SLEEP_DURATION 5
-ENV GLUU_JKS_SYNC_INTERVAL 30
-ENV PYTHON_HOME /opt/jython
+ENV GLUU_MAX_RAM_PERCENTAGE=25.0 \
+    GLUU_WAIT_MAX_TIME=300 \
+    GLUU_WAIT_SLEEP_DURATION=5 \
+    GLUU_JKS_SYNC_INTERVAL=30 \
+    PYTHON_HOME=/opt/jython
 
 # ==========
 # misc stuff
@@ -175,8 +171,10 @@ COPY conf/fido2 /etc/gluu/conf/fido2
 RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
     /etc/gluu/conf/fido2/mds/toc \
     /etc/gluu/conf/fido2/server_metadata
-
 COPY scripts /app/scripts
+# symlink for JRE
+RUN mkdir -p /usr/lib/jvm/default-jvm \
+    && ln -s /opt/java/openjdk /usr/lib/jvm/default-jvm/jre
 
 # # create non-root user
 # RUN useradd -ms /bin/sh --uid 1000 jetty \

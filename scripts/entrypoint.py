@@ -60,7 +60,11 @@ def get_couchbase_mappings():
         "site": {
             "bucket": "gluu_site",
             "alias": "site",
-        }
+        },
+        "authorization": {
+            "bucket": "gluu_authorization",
+            "alias": "authorizations",
+        },
     }
 
     if GLUU_PERSISTENCE_TYPE == "hybrid":
@@ -155,33 +159,6 @@ def render_gluu_properties():
             fw.write(rendered_txt)
 
 
-def sync_ldap_pkcs12():
-    dest = manager.config.get("ldapTrustStoreFn")
-    manager.secret.to_file("ldap_pkcs12_base64", dest, decode=True, binary_mode=True)
-
-
-def sync_couchbase_pkcs12():
-    dest = manager.config.get("couchbaseTrustStoreFn")
-    manager.secret.to_file("couchbase_pkcs12_base64", dest, decode=True, binary_mode=True)
-
-
-def render_ssl_cert():
-    manager.secret.to_file("ssl_cert", "/etc/certs/gluu_https.crt")
-
-
-def render_ssl_key():
-    manager.secret.to_file("ssl_key", "/etc/certs/gluu_https.key")
-
-
-def render_idp_signing():
-    manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
-
-
-def render_passport_rp_jks():
-    manager.secret.to_file("passport_rp_jks_base64", "/etc/certs/passport-rp.jks",
-                           decode=True, binary_mode=True)
-
-
 def modify_jetty_xml():
     fn = "/opt/jetty/etc/jetty.xml"
     with open(fn) as f:
@@ -230,19 +207,31 @@ def main():
 
     if GLUU_PERSISTENCE_TYPE in ("ldap", "hybrid"):
         render_ldap_properties()
-        sync_ldap_pkcs12()
+        manager.secret.to_file(
+            "ldap_pkcs12_base64",
+            manager.config.get("ldapTrustStoreFn"),
+            decode=True,
+            binary_mode=True,
+        )
 
     if GLUU_PERSISTENCE_TYPE in ("couchbase", "hybrid"):
         render_couchbase_properties()
-        sync_couchbase_pkcs12()
+        manager.secret.to_file(
+            "couchbase_pkcs12_base64",
+            manager.config.get("couchbaseTrustStoreFn"),
+            decode=True,
+            binary_mode=True,
+        )
 
     if GLUU_PERSISTENCE_TYPE == "hybrid":
         render_hybrid_properties()
 
-    render_ssl_cert()
-    render_ssl_key()
-    render_idp_signing()
-    render_passport_rp_jks()
+    manager.secret.to_file("ssl_cert", "/etc/certs/gluu_https.crt")
+    manager.secret.to_file("ssl_key", "/etc/certs/gluu_https.key")
+    manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
+    manager.secret.to_file("passport_rp_jks_base64", "/etc/certs/passport-rp.jks",
+                           decode=True, binary_mode=True)
+
     modify_jetty_xml()
     modify_webdefault_xml()
 
