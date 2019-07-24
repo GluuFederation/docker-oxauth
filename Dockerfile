@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jre-11.0.4_11-alpine
+FROM openjdk:8-jre-alpine3.9
 
 # ===============
 # Alpine packages
@@ -172,9 +172,6 @@ RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
     /etc/gluu/conf/fido2/mds/toc \
     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
-# symlink for JRE
-RUN mkdir -p /usr/lib/jvm/default-jvm \
-    && ln -s /opt/java/openjdk /usr/lib/jvm/default-jvm/jre
 
 # # create non-root user
 # RUN useradd -ms /bin/sh --uid 1000 jetty \
