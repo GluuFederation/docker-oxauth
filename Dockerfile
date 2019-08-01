@@ -46,8 +46,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # oxAuth
 # ======
 
-ENV OX_VERSION=4.0.b1 \
-    OX_BUILD_DATE=2019-07-23
+ENV OX_VERSION=4.0.b2 \
+    OX_BUILD_DATE=2019-07-31
 
 # the LABEL defined before downloading ox war/jar files to make sure
 # it gets the latest build for specific version

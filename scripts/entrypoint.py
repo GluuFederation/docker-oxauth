@@ -59,11 +59,19 @@ def get_couchbase_mappings():
         },
         "site": {
             "bucket": "gluu_site",
-            "alias": "site",
+            "alias": "cache-refresh",
         },
         "authorization": {
             "bucket": "gluu_authorization",
             "alias": "authorizations",
+        },
+        "tokens": {
+            "bucket": "gluu_tokens",
+            "alias": "tokens",
+        },
+        "clients": {
+            "bucket": "gluu_clients",
+            "alias": "clients",
         },
     }
 
