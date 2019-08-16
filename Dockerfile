@@ -46,18 +46,11 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # oxAuth
 # ======
 
-ENV OX_VERSION=4.0.b2 \
-    OX_BUILD_DATE=2019-07-31
-
-# the LABEL defined before downloading ox war/jar files to make sure
-# it gets the latest build for specific version
-LABEL maintainer="Gluu Inc. <support@gluu.org>" \
-    vendor="Gluu Federation" \
-    org.gluu.oxauth-server.version="${OX_VERSION}" \
-    org.gluu.oxauth-server.build-date="${OX_BUILD_DATE}"
+ENV GLUU_VERSION=4.0.b3 \
+    GLUU_BUILD_DATE=2019-08-15
 
 # Install oxAuth
-RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${OX_VERSION}/oxauth-server-${OX_VERSION}.war -O /tmp/oxauth.war \
+RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
     && mkdir -p ${JETTY_BASE}/oxauth/webapps/oxauth \
     && unzip -qq /tmp/oxauth.war -d ${JETTY_BASE}/oxauth/webapps/oxauth \
     && java -jar ${JETTY_HOME}/start.jar jetty.home=${JETTY_HOME} jetty.base=${JETTY_BASE}/oxauth --add-to-start=server,deploy,annotations,resources,http,http-forwarded,threadpool,jsp,ext,websocket \
@@ -156,6 +149,14 @@ ENV GLUU_MAX_RAM_PERCENTAGE=25.0 \
 # misc stuff
 # ==========
 
+LABEL name="oxAuth" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="4.0.0" \
+    release="dev" \
+    summary="Gluu oxAuth" \
+    description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
+
 RUN mkdir -p /etc/certs /deploy \
     /opt/gluu/python/libs \
     ${JETTY_BASE}/oxauth/custom/pages ${JETTY_BASE}/oxauth/custom/static \
@@ -172,6 +173,7 @@ RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
     /etc/gluu/conf/fido2/mds/toc \
     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # # create non-root user
 # RUN useradd -ms /bin/sh --uid 1000 jetty \
@@ -190,4 +192,4 @@ COPY scripts /app/scripts
 # USER 1000
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["sh", "/app/scripts/entrypoint.sh"]
+CMD ["/app/scripts/entrypoint.sh"]
