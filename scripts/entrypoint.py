@@ -146,7 +146,7 @@ def render_hybrid_properties():
         "storage.couchbase.mapping: {}".format(
             ", ".join(filter(None, couchbase_mappings))
         ),
-    ]).replace("user", "people, groups")
+    ]).replace("user", "people, group")
 
     with open("/etc/gluu/conf/gluu-hybrid.properties", "w") as fw:
         fw.write(out)
