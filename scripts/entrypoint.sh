@@ -112,6 +112,14 @@ else
     python /app/scripts/jks_sync.py &
 fi
 
+# if persistence type includes LDAP, make sure add delay to wait LDAP
+# to avoid broken connection when oxAuth tries to check entries in startup
+case $GLUU_PERSISTENCE_TYPE in
+    ldap|hybrid)
+        sleep 10
+        ;;
+esac
+
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
 exec java \
