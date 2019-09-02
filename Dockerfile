@@ -46,8 +46,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.0.b3 \
-    GLUU_BUILD_DATE=2019-08-16
+ENV GLUU_VERSION=4.0.b4 \
+    GLUU_BUILD_DATE=2019-08-30
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -60,7 +60,7 @@ RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxa
 # Custom libs
 # ===========
 
-ENV TWILIO_VERSION 7.17.6
+ENV TWILIO_VERSION 7.17.0
 RUN mkdir -p ${JETTY_BASE}/oxauth/custom/libs \
     && wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O ${JETTY_BASE}/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
 
@@ -127,9 +127,6 @@ ENV GLUU_SECRET_ADAPTER=vault \
 # Persistence ENV
 # ===============
 
-# available options: couchbase, ldap, hybrid
-# only takes affect when GLUU_PERSISTENCE_TYPE is hybrid
-# available options: default, user, cache, site, statistic
 ENV GLUU_PERSISTENCE_TYPE=ldap \
     GLUU_PERSISTENCE_LDAP_MAPPING=default \
     GLUU_COUCHBASE_URL=localhost \
