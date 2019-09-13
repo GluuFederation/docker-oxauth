@@ -46,8 +46,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.0.b4 \
-    GLUU_BUILD_DATE=2019-09-06
+ENV GLUU_VERSION=4.0.rc1 \
+    GLUU_BUILD_DATE=2019-09-11
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -136,9 +136,9 @@ ENV GLUU_PERSISTENCE_TYPE=ldap \
 # Generic ENV
 # ===========
 
-ENV GLUU_MAX_RAM_PERCENTAGE=25.0 \
+ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_WAIT_MAX_TIME=300 \
-    GLUU_WAIT_SLEEP_DURATION=5 \
+    GLUU_WAIT_SLEEP_DURATION=10 \
     GLUU_JKS_SYNC_INTERVAL=30 \
     PYTHON_HOME=/opt/jython
 

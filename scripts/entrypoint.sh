@@ -7,7 +7,6 @@ set -e
 
 get_java_opts() {
     local java_opts="
-        -server \
         -XX:+DisableExplicitGC \
         -XX:+UseContainerSupport \
         -XX:MaxRAMPercentage=$GLUU_MAX_RAM_PERCENTAGE \
@@ -106,4 +105,4 @@ esac
 cd /opt/gluu/jetty/oxauth
 exec java \
     $(get_java_opts) \
-    -jar /opt/jetty/start.jar
+    -jar /opt/jetty/start.jar -server
