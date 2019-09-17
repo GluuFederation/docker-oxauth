@@ -5,26 +5,14 @@ set -e
 # FUNCTIONS
 # =========
 
-get_java_opts() {
-    local java_opts="
-        -XX:+DisableExplicitGC \
-        -XX:+UseContainerSupport \
-        -XX:MaxRAMPercentage=$GLUU_MAX_RAM_PERCENTAGE \
-        -Dgluu.base=/etc/gluu \
-        -Dserver.base=/opt/gluu/jetty/oxauth \
-        -Dlog.base=/opt/gluu/jetty/oxauth \
-        -Dpython.home=/opt/jython
-
-    "
-
+get_debug_opt() {
+    debug_opt=""
     if [ -n "${GLUU_DEBUG_PORT}" ]; then
-        java_opts="
-            ${java_opts}
+        debug_opt="
             -agentlib:jdwp=transport=dt_socket,address=${GLUU_DEBUG_PORT},server=y,suspend=n
         "
     fi
-
-    echo "${java_opts}"
+    echo "${debug_opt}"
 }
 
 # ==========
@@ -104,5 +92,16 @@ esac
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
 exec java \
-    $(get_java_opts) \
-    -jar /opt/jetty/start.jar -server
+    -server \
+    -XX:+DisableExplicitGC \
+    -XX:+UseContainerSupport \
+    -XX:MaxRAMPercentage=$GLUU_MAX_RAM_PERCENTAGE \
+    -Dgluu.base=/etc/gluu \
+    -Dserver.base=/opt/gluu/jetty/oxauth \
+    -Dlog.base=/opt/gluu/jetty/oxauth \
+    -Dpython.home=/opt/jython \
+    -Djetty.home=/opt/jetty \
+    -Djetty.base=/opt/gluu/jetty/oxauth \
+    -Djava.io.tmpdir=/tmp \
+    $(get_debug_opt) \
+    -jar /opt/jetty/start.jar
