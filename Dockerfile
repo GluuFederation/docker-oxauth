@@ -4,12 +4,9 @@ FROM openjdk:8-jre-alpine3.9
 # Alpine packages
 # ===============
 
-RUN apk update && apk add --no-cache \
-    openssl \
-    py-pip \
-    shadow \
-    wget \
-    git
+RUN apk update \
+    && apk add --no-cache openssl py-pip shadow \
+    && apk add --no-cache --virtual build-deps wget git
 
 # =====
 # Jetty
@@ -25,9 +22,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/
     && mkdir -p /opt \
     && tar -xzf /tmp/jetty.tar.gz -C /opt \
     && mv /opt/jetty-distribution-${JETTY_VERSION} ${JETTY_HOME} \
-    && rm -rf /tmp/jetty.tar.gz \
-    && cp ${JETTY_HOME}/etc/webdefault.xml ${JETTY_HOME}/etc/webdefault.xml.bak \
-    && cp ${JETTY_HOME}/etc/jetty.xml ${JETTY_HOME}/etc/jetty.xml.bak
+    && rm -rf /tmp/jetty.tar.gz
 
 # Ports required by jetty
 EXPOSE 8080
@@ -46,8 +41,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.0.rc1 \
-    GLUU_BUILD_DATE=2019-09-11
+ENV GLUU_VERSION=4.0.rc2 \
+    GLUU_BUILD_DATE=2019-09-20
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -79,6 +74,13 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
     && pip install --no-cache-dir -r /tmp/requirements.txt \
     && apk del git
+
+# =======
+# Cleanup
+# =======
+
+RUN apk del build-deps \
+    && rm -rf /var/cache/apk/*
 
 # =======
 # License
@@ -130,6 +132,9 @@ ENV GLUU_SECRET_ADAPTER=vault \
 ENV GLUU_PERSISTENCE_TYPE=ldap \
     GLUU_PERSISTENCE_LDAP_MAPPING=default \
     GLUU_COUCHBASE_URL=localhost \
+    GLUU_COUCHBASE_USER=admin \
+    GLUU_COUCHBASE_CERT_FILE=/etc/certs/couchbase.crt \
+    GLUU_COUCHBASE_PASSWORD_FILE=/etc/gluu/conf/couchbase_password \
     GLUU_LDAP_URL=localhost:1636
 
 # ===========
