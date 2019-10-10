@@ -20,6 +20,11 @@ run_wait() {
 }
 
 run_entrypoint() {
+    # move twilio lib
+    if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar ]; then
+        mv /tmp/twilio-${TWILIO_VERSION}.jar /opt/gluu/jetty/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
+    fi
+
     if [ ! -f /deploy/touched ]; then
         python /app/scripts/entrypoint.py
         touch /deploy/touched
