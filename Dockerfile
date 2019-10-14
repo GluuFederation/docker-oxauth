@@ -42,7 +42,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # ======
 
 ENV GLUU_VERSION=4.0.Final \
-    GLUU_BUILD_DATE=2019-10-11
+    GLUU_BUILD_DATE=2019-10-14
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -71,8 +71,7 @@ RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-stati
 
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt \
-    && apk del git
+    && pip install --no-cache-dir -r /tmp/requirements.txt
 
 # =======
 # Cleanup
