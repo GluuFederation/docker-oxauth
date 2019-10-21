@@ -2,6 +2,13 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.0.0_01
+
+Released on October 22nd, 2019.
+
+* Upgraded to Gluu Server 4.0.
+* Fixed bugs where `twilio.jar` is deleted when there is volume mounted to `/opt/gluu/jetty/oxauth/custom/libs` directory.
+
 ## Version 3.1.6_02
 
 Released on May 10th, 2019.
