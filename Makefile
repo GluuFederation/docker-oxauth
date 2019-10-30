@@ -1,4 +1,4 @@
-GLUU_VERSION=4.0.0
+GLUU_VERSION=4.0.1
 IMAGE_NAME=gluufederation/oxauth
 UNSTABLE_VERSION=dev
 
