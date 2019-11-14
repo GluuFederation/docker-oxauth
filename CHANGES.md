@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.0.1_03
+
+Released on November 15th, 2019.
+
+* Upgraded to oxAuth v4.0.1.Final build at 2019-11-14.
+
 ## Version 4.0.1_02
 
 Released on November 14th, 2019.
