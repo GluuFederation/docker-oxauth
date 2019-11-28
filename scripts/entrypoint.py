@@ -1,3 +1,4 @@
+import base64
 import os
 import re
 
@@ -98,10 +99,16 @@ def main():
     manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
     manager.secret.to_file("passport_rp_jks_base64", "/etc/certs/passport-rp.jks",
                            decode=True, binary_mode=True)
+
     manager.secret.to_file("api_rp_jks_base64", "/etc/certs/api-rp.jks",
                            decode=True, binary_mode=True)
+    with open(manager.config.get("api_rp_client_jwks_fn"), "w") as f:
+        f.write(base64.b64decode(manager.secret.get("api_rp_client_base64_jwks")))
+
     manager.secret.to_file("api_rs_jks_base64", "/etc/certs/api-rs.jks",
                            decode=True, binary_mode=True)
+    with open(manager.config.get("api_rs_client_jwks_fn"), "w") as f:
+        f.write(base64.b64decode(manager.secret.get("api_rs_client_base64_jwks")))
 
     modify_jetty_xml()
     modify_webdefault_xml()
