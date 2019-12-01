@@ -2,6 +2,14 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.0.1_05
+
+Released on December 1st, 2019.
+
+* Upgraded `oxauth-server` v4.0.1.Final build at 2019-11-30.
+* Added environment to enable oxTrust API (test mode and UMA mode) upon container deployment.
+* Added environment to activate Passport, SAML, Radius, and Casa upon container deployment.
+
 ## Version 4.0.1_04
 
 Released on November 19th, 2019.

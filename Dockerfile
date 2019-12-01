@@ -42,7 +42,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # ======
 
 ENV GLUU_VERSION=4.0.1.Final \
-    GLUU_BUILD_DATE=2019-11-26
+    GLUU_BUILD_DATE=2019-11-30
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -56,7 +56,7 @@ RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxa
 # ===========
 
 ENV TWILIO_VERSION 7.17.0
-RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio-${TWILIO_VERSION}.jar
+RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio.jar
 
 # ====
 # Tini
@@ -153,7 +153,7 @@ LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.0.1" \
-    release="04" \
+    release="05" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
@@ -167,6 +167,7 @@ RUN mkdir -p /etc/certs /deploy \
 COPY libs /opt/gluu/python/libs
 COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
+COPY jetty/oxauth.xml ${JETTY_BASE}/oxauth/webapps/
 COPY conf/*.tmpl /app/templates/
 COPY conf/fido2 /etc/gluu/conf/fido2
 RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \

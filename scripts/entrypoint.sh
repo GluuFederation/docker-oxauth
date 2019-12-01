@@ -21,9 +21,9 @@ run_wait() {
 
 run_entrypoint() {
     # move twilio lib
-    if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar ]; then
+    if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/twilio.jar ]; then
         mkdir -p /opt/gluu/jetty/oxauth/custom/libs
-        mv /tmp/twilio-${TWILIO_VERSION}.jar /opt/gluu/jetty/oxauth/custom/libs/twilio-${TWILIO_VERSION}.jar
+        mv /tmp/twilio.jar /opt/gluu/jetty/oxauth/custom/libs/twilio.jar
     fi
 
     if [ ! -f /deploy/touched ]; then
