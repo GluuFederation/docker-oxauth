@@ -8,5 +8,5 @@
 	</Set>
 	<Set name="extractWAR">false</Set>
 
-    <Set name="extraClasspath">./custom/libs/twilio.jar</Set>
+    <Set name="extraClasspath">./custom/libs/twilio.jar,./custom/libs/jsmpp.jar</Set>
 </Configure>

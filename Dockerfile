@@ -42,7 +42,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # ======
 
 ENV GLUU_VERSION=4.1.0.Final \
-    GLUU_BUILD_DATE=2020-01-30
+    GLUU_BUILD_DATE=2020-02-06
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -57,6 +57,8 @@ RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxa
 
 ENV TWILIO_VERSION 7.17.0
 RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio.jar
+ENV JSMPP_VERSION 2.3.7
+RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
 
 # ====
 # Tini
