@@ -5,7 +5,7 @@ FROM openjdk:8-jre-alpine3.9
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py-pip shadow \
+    && apk add --no-cache openssl py-pip \
     && apk add --no-cache --virtual build-deps wget git
 
 # =====
@@ -42,7 +42,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # ======
 
 ENV GLUU_VERSION=4.1.0.Final \
-    GLUU_BUILD_DATE="2020-02-18 20:03"
+    GLUU_BUILD_DATE="2020-02-28 09:47"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
