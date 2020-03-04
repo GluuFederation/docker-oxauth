@@ -41,8 +41,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.j
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.0.Final.patch1 \
-    GLUU_BUILD_DATE=2020-01-20
+ENV GLUU_VERSION=4.0.sp1 \
+    GLUU_BUILD_DATE="2020-02-13 10:40"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -129,11 +129,14 @@ ENV GLUU_SECRET_ADAPTER=vault \
 
 ENV GLUU_PERSISTENCE_TYPE=ldap \
     GLUU_PERSISTENCE_LDAP_MAPPING=default \
+    GLUU_LDAP_URL=localhost:1636 \
     GLUU_COUCHBASE_URL=localhost \
     GLUU_COUCHBASE_USER=admin \
     GLUU_COUCHBASE_CERT_FILE=/etc/certs/couchbase.crt \
     GLUU_COUCHBASE_PASSWORD_FILE=/etc/gluu/conf/couchbase_password \
-    GLUU_LDAP_URL=localhost:1636
+    GLUU_COUCHBASE_CONN_TIMEOUT=10000 \
+    GLUU_COUCHBASE_CONN_MAX_WAIT=20000 \
+    GLUU_COUCHBASE_SCAN_CONSISTENCY=not_bounded
 
 # ===========
 # Generic ENV
@@ -153,7 +156,7 @@ LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.0.1" \
-    release="07" \
+    release="08" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
