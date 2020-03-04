@@ -2,6 +2,13 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.0.1_08
+
+Released on March 5th, 2020.
+
+* Upgraded `oxauth-server` v4.0.sp1.
+* Added ENV for customizing Couchbase connection and scan consistency.
+
 ## Version 4.0.1_07
 
 Released on January 22nd, 2020.
