@@ -96,7 +96,9 @@ def main():
         "changeit",
     )
 
-    manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
+    if not os.path.isfile("/etc/certs/idp-signing.crt"):
+        manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
+
     manager.secret.to_file("passport_rp_jks_base64", "/etc/certs/passport-rp.jks",
                            decode=True, binary_mode=True)
 
