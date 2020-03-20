@@ -62,7 +62,7 @@ cd /opt/gluu/jetty/oxauth
 exec java \
     -server \
     -Xms1024m \
-    -Xms1024m \
+    -Xmx1024m \
     -XX:MaxMetaspaceSize=256m \
     -XX:+DisableExplicitGC \
     -XX:+UseContainerSupport \
