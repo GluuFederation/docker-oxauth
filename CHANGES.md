@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.1_02
+
+Released on March 25th, 2020.
+
+* Upgraded `oxauth-server` v4.1.1 build at 2020-03-25 to address issue with key regeneration interval (https://github.com/GluuFederation/oxAuth/issues/1299).
+
 ## Version 4.1.1_01
 
 Released on March 24th, 2020.
