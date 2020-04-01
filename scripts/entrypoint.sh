@@ -57,6 +57,8 @@ else
     run_jks_sync
 fi
 
+python /app/scripts/casawatcher.py &
+
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
 exec java \
