@@ -2,6 +2,13 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.1_03
+
+Released on April 2nd, 2020.
+
+* Upgraded `oxauth-server`.
+* Added `casawatcher` script.
+
 ## Version 4.1.1_02
 
 Released on March 25th, 2020.
