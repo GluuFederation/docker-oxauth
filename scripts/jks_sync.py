@@ -62,12 +62,12 @@ def main():
                 if should_sync_jks():
                     sync_jks()
             except Exception as exc:
-                logger.warn("got unhandled error; reason={}".format(exc))
+                logger.warning("got unhandled error; reason={}".format(exc))
 
             # sane interval
             time.sleep(sync_interval)
     except KeyboardInterrupt:
-        logger.warn("canceled by user; exiting ...")
+        logger.warning("canceled by user; exiting ...")
 
 
 if __name__ == "__main__":

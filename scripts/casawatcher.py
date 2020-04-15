@@ -53,7 +53,7 @@ class DockerClient(BaseClient):
         return self.client.containers.list(filters={'label': 'APP_NAME=casa'})
 
     def get_container_ip(self, container):
-        for _, network in container.attrs["NetworkSettings"]["Networks"].iteritems():
+        for _, network in container.attrs["NetworkSettings"]["Networks"].items():
             return network["IPAddress"]
 
     def get_container_name(self, container):
@@ -91,12 +91,12 @@ class KubernetesClient(BaseClient):
             config.load_incluster_config()
             config_loaded = True
         except config.config_exception.ConfigException:
-            logger.warn("Unable to load in-cluster configuration; trying to load from Kube config file")
+            logger.warning("Unable to load in-cluster configuration; trying to load from Kube config file")
             try:
                 config.load_kube_config()
                 config_loaded = True
             except (IOError, config.config_exception.ConfigException) as exc:
-                logger.warn("Unable to load Kube config; reason={}".format(exc))
+                logger.warning("Unable to load Kube config; reason={}".format(exc))
 
         if not config_loaded:
             logger.error("Unable to load in-cluster or Kube config")
@@ -196,9 +196,9 @@ class CasaWatcher(object):
         containers = self.client.get_casa_containers()
 
         if not containers:
-            logger.warn("Unable to find any Casa container; make sure "
-                        "to deploy Casa and set APP_NAME=casa "
-                        "label on container level")
+            logger.warning("Unable to find any Casa container; make sure "
+                           "to deploy Casa and set APP_NAME=casa "
+                           "label on container level")
             return
 
         for container in containers:
@@ -223,7 +223,7 @@ class CasaWatcher(object):
 
         for filepath in filepaths:
             with open(filepath) as f:
-                digest = md5(f.read()).hexdigest()
+                digest = md5(f.read().encode()).hexdigest()
 
             # skip if nothing has been tampered
             if filepath in self.filepath_mods and digest == self.filepath_mods[filepath]:
@@ -265,7 +265,7 @@ class CasaWatcher(object):
             # keep the number of registered Casa
             self.casa_nums = casa_nums
         except Exception as exc:
-            logger.warn("Got unhandled exception; reason={}".format(exc))
+            logger.warning("Got unhandled exception; reason={}".format(exc))
 
 
 def get_sync_interval():
@@ -285,7 +285,7 @@ def main():
         os.environ.get("GLUU_SYNC_CASA_MANIFESTS", False)
     )
     if not enable_sync:
-        logger.warn("Sync Casa files are disabled ... exiting")
+        logger.warning("Sync Casa files are disabled ... exiting")
         return
 
     try:
@@ -296,7 +296,7 @@ def main():
             watcher.maybe_sync()
             time.sleep(sync_interval)
     except KeyboardInterrupt:
-        logger.warn("Canceled by user ... exiting")
+        logger.warning("Canceled by user ... exiting")
 
 
 if __name__ == "__main__":
