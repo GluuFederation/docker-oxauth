@@ -1,3 +1,4 @@
+import base64
 import logging
 import logging.config
 import os
@@ -14,8 +15,16 @@ logger = logging.getLogger("jks_sync")
 
 
 def jks_created():
-    dest = manager.config.get("oxauth_openid_jks_fn")
-    manager.secret.to_file("oxauth_jks_base64", dest, decode=True, binary_mode=True)
+    # dest = manager.config.get("oxauth_openid_jks_fn")
+    manager.secret.to_file("oxauth_jks_base64", "/etc/certs/oxauth-keys.jks", decode=True, binary_mode=True)
+    return True
+
+
+def jwks_created():
+    with open("/etc/certs/oxauth-keys.json", "w") as f:
+        f.write(base64.b64decode(
+            manager.secret.get("oxauth_openid_key_base64")
+        ))
     return True
 
 
@@ -26,12 +35,11 @@ def should_sync_jks():
     if not last_rotation:
         return False
 
-    # check modification time of local JKS
+    # check modification time of local JKS; we dont need to check JSON
     try:
         mtime = int(os.path.getmtime(manager.config.get("oxauth_openid_jks_fn")))
     except OSError:
         mtime = 0
-
     return mtime < int(last_rotation)
 
 
@@ -39,8 +47,13 @@ def sync_jks():
     if jks_created():
         logger.info("oxauth-keys.jks has been synchronized")
         return True
+    return False
 
-    # mark sync as failed
+
+def sync_jwks():
+    if jwks_created():
+        logger.info("oxauth-keys.json has been synchronized")
+        return True
     return False
 
 
@@ -61,6 +74,7 @@ def main():
             try:
                 if should_sync_jks():
                     sync_jks()
+                    sync_jwks()
             except Exception as exc:
                 logger.warn("got unhandled error; reason={}".format(exc))
 

@@ -50,11 +50,11 @@ run_jks_sync() {
 if [ -f /etc/redhat-release ]; then
     source scl_source enable python27 && run_wait
     source scl_source enable python27 && run_entrypoint
-    source scl_source enable python27 && run_jks_sync
+    # source scl_source enable python27 && run_jks_sync
 else
     run_wait
     run_entrypoint
-    run_jks_sync
+    # run_jks_sync
 fi
 
 python /app/scripts/casawatcher.py &
