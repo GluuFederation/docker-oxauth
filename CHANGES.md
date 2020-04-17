@@ -2,6 +2,31 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.1_04
+
+Released on April 17th, 2020.
+
+* Upgraded `oxauth-server`.
+
+* Upgrade Jython package.
+
+* Conform to changes in key rotation logic . Fixes [Key Rotation issue #7](https://github.com/GluuFederation/docker-key-rotation/issues/7) in commit https://github.com/GluuFederation/docker-oxauth/commit/16cd18d34304d0ce91f0e4598fbd6a91d8cf2d0f
+  
+  1. oxAuth starts off using old/expired JWKS + JKS
+  
+  1. Key-rotation re-generates new JWKS + JKS
+  
+  1. Key-rotation creates a backup of old JKS and JWKS in oxAuth at /etc/certs/oxauth-keys.jks and /etc/certs/oxauth-keys.json. Note: At this point oxAuth is still using cached (old/expired) JWKS + JKS.
+  
+  1. Key-rotation pushes new JKS .Note: At this point oxAuth is still using cached (old/expired) JWKS + JKS.
+  
+  1. Key-rotation saves the JWKS in persistence:
+  
+    - if the process fails key rotation restores the JSK from backup in oxAuth
+    
+    - if the process succeeds, oxAuth reloads itself hence loading new JWKS + JKS pair
+    
+
 ## Version 4.1.1_03
 
 Released on April 2nd, 2020.
