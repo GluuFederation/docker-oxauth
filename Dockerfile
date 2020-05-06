@@ -5,8 +5,8 @@ FROM openjdk:8-jre-alpine3.9
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py-pip \
-    && apk add --no-cache --virtual build-deps wget git
+    && apk add --no-cache openssl py-pip py3-pip libxml2-dev libxslt-dev \
+    && apk add --no-cache --virtual build-deps wget git build-base python3-dev
 
 # =====
 # Jetty
@@ -42,7 +42,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # ======
 
 ENV GLUU_VERSION=4.1.1.Final \
-    GLUU_BUILD_DATE="2020-04-17 18:36"
+    GLUU_BUILD_DATE="2020-05-05 18:27"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -73,7 +73,8 @@ RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-stati
 
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+    && pip install --no-cache-dir -r /tmp/requirements.txt \
+    && pip3 install --no-cache-dir webdavclient3
 
 # =======
 # Cleanup
@@ -150,7 +151,11 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_JKS_SYNC_INTERVAL=30 \
     PYTHON_HOME=/opt/jython \
     GLUU_SYNC_CASA_MANIFESTS=false \
-    GLUU_CASAWATCHER_INTERVAL=10
+    GLUU_CASAWATCHER_INTERVAL=10 \
+    GLUU_DOCUMENT_STORE_TYPE=LOCAL \
+    GLUU_JCA_URL=http://localhost:8080 \
+    GLUU_JCA_PASSWORD_FILE=/etc/gluu/conf/jca_password \
+    GLUU_JCA_USERNAME=admin
 
 # ==========
 # misc stuff
@@ -199,5 +204,5 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # # run as non-root user
 # USER 1000
 
-ENTRYPOINT ["tini", "-g", "--"]
+ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]

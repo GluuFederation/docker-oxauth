@@ -1,4 +1,5 @@
 import base64
+import glob
 import os
 import re
 
@@ -57,6 +58,22 @@ def modify_webdefault_xml():
 
     with open(fn, "w") as f:
         f.write(updates)
+
+
+def modify_oxauth_xml():
+    fn = "/opt/gluu/jetty/oxauth/webapps/oxauth.xml"
+
+    with open(fn) as f:
+        txt = f.read()
+
+    with open(fn, "w") as f:
+        ctx = {
+            "extra_classpath": ",".join([
+                j.replace("/opt/gluu/jetty/oxauth", ".")
+                for j in glob.iglob("/opt/gluu/jetty/oxauth/custom/libs/*.jar")
+            ])
+        }
+        f.write(txt % ctx)
 
 
 def main():
@@ -124,6 +141,7 @@ def main():
 
     modify_jetty_xml()
     modify_webdefault_xml()
+    modify_oxauth_xml()
 
     manager.secret.to_file(
         "oxauth_jks_base64",
