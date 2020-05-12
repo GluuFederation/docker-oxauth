@@ -4,7 +4,7 @@ Docker image packaging for oxAuth.
 
 ## Versions
 
-- Stable: `gluufederation/oxauth:4.1.1_03`
+- Stable: `gluufederation/oxauth:4.1.1_06`
 - Unstable: `gluufederation/oxauth:4.1.1_dev`
 
 Refer to [Changelog](./CHANGES.md) for details on new features, bug fixes, or older releases.
@@ -56,4 +56,4 @@ The following environment variables are supported by the container:
 - `GLUU_SYNC_CASA_MANIFESTS`: Whether to sync Casa manifest files to Casa containers (default to `false`).
 - `GLUU_CASAWATCHER_INTERVAL`: Interval between Casa files synchronization (default to `10`).
 - `GLUU_CONTAINER_METADATA`: The name of scheduler to pull container metadata (one of `docker` or `kubernetes`; default to `docker`).
-- `GLUU_SYNC_JKS_INTERVAL`: Interval of JKS sync in seconds (if needed).
+- `GLUU_SYNC_JKS_INTERVAL`: Interval of JKS sync in seconds (if needed); obsolete.

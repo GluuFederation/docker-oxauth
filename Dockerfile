@@ -5,19 +5,19 @@ FROM openjdk:8-jre-alpine3.9
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py3-pip \
+    && apk add --no-cache openssl py3-pip libxml2-dev libxslt-dev \
+    && apk add --no-cache --virtual build-deps wget git build-base python3-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python \
-    && ln -sf /usr/bin/pip3 /usr/bin/pip \
-    && apk add --no-cache --virtual build-deps wget git
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
 
 # =====
 # Jetty
 # =====
 
-ENV JETTY_VERSION=9.4.24.v20191120 \
-    JETTY_HOME=/opt/jetty \
-    JETTY_BASE=/opt/gluu/jetty \
-    JETTY_USER_HOME_LIB=/home/jetty/lib
+ARG JETTY_VERSION=9.4.24.v20191120
+ARG JETTY_HOME=/opt/jetty
+ARG JETTY_BASE=/opt/gluu/jetty
+ARG JETTY_USER_HOME_LIB=/home/jetty/lib
 
 # Install jetty
 RUN wget -q https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${JETTY_VERSION}/jetty-distribution-${JETTY_VERSION}.tar.gz -O /tmp/jetty.tar.gz \
@@ -33,7 +33,7 @@ EXPOSE 8080
 # Jython
 # ======
 
-ENV JYTHON_VERSION=2.7.2
+ARG JYTHON_VERSION=2.7.2
 RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
@@ -43,8 +43,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.1.1.Final \
-    GLUU_BUILD_DATE="2020-04-07 18:59"
+ARG GLUU_VERSION=4.2.0-SNAPSHOT
+ARG GLUU_BUILD_DATE="2020-05-12 17:18"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -57,9 +57,9 @@ RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxa
 # Custom libs
 # ===========
 
-ENV TWILIO_VERSION 7.17.0
+ARG TWILIO_VERSION=7.17.0
 RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio.jar
-ENV JSMPP_VERSION 2.3.7
+ARG JSMPP_VERSION=2.3.7
 RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
 
 # ====
@@ -152,7 +152,11 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_JKS_SYNC_INTERVAL=30 \
     PYTHON_HOME=/opt/jython \
     GLUU_SYNC_CASA_MANIFESTS=false \
-    GLUU_CASAWATCHER_INTERVAL=10
+    GLUU_CASAWATCHER_INTERVAL=10 \
+    GLUU_DOCUMENT_STORE_TYPE=LOCAL \
+    GLUU_JCA_URL=http://localhost:8080 \
+    GLUU_JCA_PASSWORD_FILE=/etc/gluu/conf/jca_password \
+    GLUU_JCA_USERNAME=admin
 
 # ==========
 # misc stuff
@@ -201,5 +205,5 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # # run as non-root user
 # USER 1000
 
-ENTRYPOINT ["tini", "-g", "--"]
+ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]
