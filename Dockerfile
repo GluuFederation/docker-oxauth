@@ -1,11 +1,12 @@
-FROM openjdk:8-jre-alpine3.9
+# FROM openjdk:8-jre-alpine3.9
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 # ===============
 # Alpine packages
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py3-pip libxml2-dev libxslt-dev \
+    && apk add --no-cache openssl py3-pip libxml2-dev libxslt-dev tini \
     && apk add --no-cache --virtual build-deps wget git build-base python3-dev \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && ln -sf /usr/bin/pip3 /usr/bin/pip
@@ -44,7 +45,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # ======
 
 ARG GLUU_VERSION=4.2.0-SNAPSHOT
-ARG GLUU_BUILD_DATE="2020-05-12 17:18"
+ARG GLUU_BUILD_DATE="2020-05-13 05:04"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -63,11 +64,11 @@ ARG JSMPP_VERSION=2.3.7
 RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
 
 # ====
-# Tini
-# ====
+# # Tini
+# # ====
 
-RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-    && chmod +x /usr/bin/tini
+# RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
+#     && chmod +x /usr/bin/tini
 
 # ======
 # Python
