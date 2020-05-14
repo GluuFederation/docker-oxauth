@@ -63,13 +63,6 @@ RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSIO
 ARG JSMPP_VERSION=2.3.7
 RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
 
-# ====
-# # Tini
-# # ====
-
-# RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-#     && chmod +x /usr/bin/tini
-
 # ======
 # Python
 # ======
@@ -189,22 +182,10 @@ RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
-
-# # create non-root user
-# RUN useradd -ms /bin/sh --uid 1000 jetty \
-#     && usermod -a -G root jetty
-
-# # adjust ownership
-# RUN chown -R 1000:1000 /opt/gluu/jetty \
-#     && chown -R 1000:1000 /deploy \
-#     && chmod -R g+w /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
-#     && chgrp -R 0 /opt/gluu/jetty && chmod -R g=u /opt/gluu/jetty \
-#     && chgrp -R 0 /deploy && chmod -R g=u /deploy \
-#     && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-#     && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu
-
-# # run as non-root user
-# USER 1000
+# symlink JVM
+RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
+    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
+    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
 
 ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]
