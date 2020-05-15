@@ -1,4 +1,3 @@
-# FROM openjdk:8-jre-alpine3.9
 FROM adoptopenjdk/openjdk11:alpine-jre
 
 # ===============
@@ -6,8 +5,8 @@ FROM adoptopenjdk/openjdk11:alpine-jre
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py3-pip libxml2-dev libxslt-dev tini \
-    && apk add --no-cache --virtual build-deps wget git build-base python3-dev \
+    && apk add --no-cache openssl py3-pip tini \
+    && apk add --no-cache --virtual build-deps wget git \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && ln -sf /usr/bin/pip3 /usr/bin/pip
 
@@ -62,6 +61,16 @@ ARG TWILIO_VERSION=7.17.0
 RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio.jar
 ARG JSMPP_VERSION=2.3.7
 RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
+
+# ======
+# rclone
+# ======
+
+ARG RCLONE_VERSION=v1.51.0
+RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip -O /tmp/rclone.zip \
+    && unzip -qq /tmp/rclone.zip -d /tmp \
+    && mv /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/bin/ \
+    && rm -rf /tmp/rclone-${RCLONE_VERSION}-linux-amd64 /tmp/rclone.zip
 
 # ======
 # Python

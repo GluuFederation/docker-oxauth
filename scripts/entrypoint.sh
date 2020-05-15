@@ -53,18 +53,10 @@ run_casawatcher() {
 # ==========
 
 move_builtin_jars
-
-if [ -f /etc/redhat-release ]; then
-    source scl_source enable python27 && run_wait
-    source scl_source enable python3 && run_jca_sync
-    source scl_source enable python27 && run_entrypoint
-    source scl_source enable python27 && run_casawatcher
-else
-    run_wait
-    run_jca_sync
-    run_entrypoint
-    run_casawatcher
-fi
+run_wait
+run_jca_sync
+run_entrypoint
+run_casawatcher
 
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
