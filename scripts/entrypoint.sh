@@ -52,6 +52,10 @@ run_casawatcher() {
     python /app/scripts/casawatcher.py &
 }
 
+run_mod_context() {
+    python3 /app/scripts/mod_context.py
+}
+
 # ==========
 # ENTRYPOINT
 # ==========
@@ -63,11 +67,13 @@ if [ -f /etc/redhat-release ]; then
     source scl_source enable python3 && run_jca_sync
     source scl_source enable python27 && run_entrypoint
     source scl_source enable python27 && run_casawatcher
+    source scl_source enable python27 && run_mod_context
 else
     run_wait
     run_jca_sync
     run_entrypoint
     run_casawatcher
+    run_mod_context
 fi
 
 # run oxAuth server
