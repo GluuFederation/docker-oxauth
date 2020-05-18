@@ -1,5 +1,10 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
 
+# symlink JVM
+RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
+    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
+    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
+
 # ===============
 # Alpine packages
 # ===============
@@ -44,7 +49,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # ======
 
 ARG GLUU_VERSION=4.2.0-SNAPSHOT
-ARG GLUU_BUILD_DATE="2020-05-13 05:04"
+ARG GLUU_BUILD_DATE="2020-05-17 15:17"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -191,10 +196,6 @@ RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
-# symlink JVM
-RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
-    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
-    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
 
 ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]
