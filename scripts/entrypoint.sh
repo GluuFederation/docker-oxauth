@@ -48,6 +48,10 @@ run_casawatcher() {
     python /app/scripts/casawatcher.py &
 }
 
+run_mod_context() {
+    python3 /app/scripts/mod_context.py
+}
+
 # ==========
 # ENTRYPOINT
 # ==========
@@ -57,6 +61,7 @@ run_wait
 run_jca_sync
 run_entrypoint
 run_casawatcher
+run_mod_context
 
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
