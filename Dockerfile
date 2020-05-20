@@ -6,7 +6,7 @@ FROM openjdk:8-jre-alpine3.9
 
 RUN apk update \
     && apk add --no-cache openssl py-pip shadow \
-    && apk add --no-cache --virtual build-deps wget git
+    && apk add --no-cache --virtual build-deps wget git curl
 
 # =====
 # Jetty
@@ -156,7 +156,7 @@ LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.0.1" \
-    release="08" \
+    release="09" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 

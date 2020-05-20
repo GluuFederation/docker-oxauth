@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.0.1_09
+
+Released on May 20th, 2020.
+
+* Added Curl package
+
 ## Version 4.0.1_08
 
 Released on March 5th, 2020.
