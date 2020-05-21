@@ -15,10 +15,6 @@ get_debug_opt() {
     echo "${debug_opt}"
 }
 
-run_wait() {
-    python /app/scripts/wait.py
-}
-
 move_builtin_jars() {
     # move twilio lib
     if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/twilio.jar ]; then
@@ -33,35 +29,21 @@ move_builtin_jars() {
     fi
 }
 
-run_entrypoint() {
-    if [ ! -f /deploy/touched ]; then
-        python /app/scripts/entrypoint.py
-        touch /deploy/touched
-    fi
-}
-
-run_jca_sync() {
-    python3 /app/scripts/jca_sync.py &
-}
-
-run_casawatcher() {
-    python /app/scripts/casawatcher.py &
-}
-
-run_mod_context() {
-    python3 /app/scripts/mod_context.py
-}
-
 # ==========
 # ENTRYPOINT
 # ==========
 
 move_builtin_jars
-run_wait
-run_jca_sync
-run_entrypoint
-run_casawatcher
-run_mod_context
+python3 /app/scripts/wait.py
+python3 /app/scripts/jca_sync.py &
+
+if [ ! -f /deploy/touched ]; then
+    python3 /app/scripts/entrypoint.py
+    touch /deploy/touched
+fi
+
+python3 /app/scripts/casawatcher.py &
+python3 /app/scripts/mod_context.py
 
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
