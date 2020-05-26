@@ -47,7 +47,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # ======
 
 ARG GLUU_VERSION=4.2.0-SNAPSHOT
-ARG GLUU_BUILD_DATE="2020-05-17 15:17"
+ARG GLUU_BUILD_DATE="2020-05-26 01:02"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -188,10 +188,10 @@ COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
 COPY jetty/oxauth.xml ${JETTY_BASE}/oxauth/webapps/
 COPY conf/*.tmpl /app/templates/
-COPY conf/fido2 /etc/gluu/conf/fido2
-RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
-    /etc/gluu/conf/fido2/mds/toc \
-    /etc/gluu/conf/fido2/server_metadata
+# COPY conf/fido2 /etc/gluu/conf/fido2
+# RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
+#     /etc/gluu/conf/fido2/mds/toc \
+#     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
 
