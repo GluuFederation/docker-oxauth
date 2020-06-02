@@ -1,75 +1,16 @@
-import subprocess
-import shlex
 import logging.config
 import os
 import time
-from typing import Tuple
 
 from settings import LOGGING_CONFIG
+
+from pygluu.containerlib.document import RClone
 
 ROOT_DIR = "/repository/default"
 SYNC_DIR = "/opt/gluu/jetty/oxauth/custom"
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("webdav")
-
-
-def exec_cmd(cmd: str) -> Tuple[bytes, bytes, int]:
-    args = shlex.split(cmd)
-    popen = subprocess.Popen(
-        args,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    stdout, stderr = popen.communicate()
-    retcode = popen.returncode
-    return stdout.strip(), stderr.strip(), retcode
-
-
-class RClone(object):
-    def __init__(self, url, username, password):
-        self.url = f"{url}/repository/default"
-        self.username = username
-        self.password = password
-
-    def configure(self):
-        conf_file = os.path.expanduser("~/.config/rclone/rclone.conf")
-        if os.path.isfile(conf_file):
-            return
-
-        cmd = f"rclone config create jackrabbit webdav vendor other pass {self.password} user admin url {self.url}"
-        _, err, code = exec_cmd(cmd)
-
-        if code != 0:
-            errors = err.decode().splitlines()
-            logger.warning(f"Unable to create webdav config; reason={errors}")
-
-    def copy_from(self, remote, local):
-        cmd = f"rclone copy jackrabbit:{remote} {local} --create-empty-src-dirs"
-        _, err, code = exec_cmd(cmd)
-
-        if code != 0:
-            errors = err.decode().splitlines()
-            logger.debug(f"Unable to sync files from remote directories; reason={errors}")
-
-    def copy_to(self, remote, local):
-        cmd = f"rclone copy {local} jackrabbit:{remote} --create-empty-src-dirs"
-        _, err, code = exec_cmd(cmd)
-
-        if code != 0:
-            errors = err.decode().splitlines()
-            logger.debug(f"Unable to sync files to remote directories; reason={errors}")
-
-    def ready(self, path="/"):
-        cmd = "rclone lsd jackrabbit:/"
-        _, err, code = exec_cmd(cmd)
-
-        if code != 0:
-            errors = err.decode().splitlines()
-            logger.debug(f"Unable to list remote directory {path}; reason={errors}")
-            return False
-        return True
 
 
 def sync_from_webdav(url, username, password):
