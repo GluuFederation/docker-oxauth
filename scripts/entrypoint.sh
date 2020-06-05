@@ -19,7 +19,7 @@ run_wait() {
     python /app/scripts/wait.py
 }
 
-run_entrypoint() {
+move_builtin_jars() {
     # move twilio lib
     if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/twilio.jar ]; then
         mkdir -p /opt/gluu/jetty/oxauth/custom/libs
@@ -31,30 +31,49 @@ run_entrypoint() {
         mkdir -p /opt/gluu/jetty/oxauth/custom/libs
         mv /tmp/jsmpp.jar /opt/gluu/jetty/oxauth/custom/libs/jsmpp.jar
     fi
+}
 
-
+run_entrypoint() {
     if [ ! -f /deploy/touched ]; then
         python /app/scripts/entrypoint.py
         touch /deploy/touched
     fi
 }
 
-run_jks_sync() {
-    python /app/scripts/jks_sync.py &
+# run_jks_sync() {
+#     python /app/scripts/jks_sync.py &
+# }
+
+run_jca_sync() {
+    python3 /app/scripts/jca_sync.py &
+}
+
+run_casawatcher() {
+    python /app/scripts/casawatcher.py &
+}
+
+run_mod_context() {
+    python3 /app/scripts/mod_context.py
 }
 
 # ==========
 # ENTRYPOINT
 # ==========
 
+move_builtin_jars
+
 if [ -f /etc/redhat-release ]; then
     source scl_source enable python27 && run_wait
+    source scl_source enable python3 && run_jca_sync
     source scl_source enable python27 && run_entrypoint
-    source scl_source enable python27 && run_jks_sync
+    source scl_source enable python27 && run_casawatcher
+    source scl_source enable python27 && run_mod_context
 else
     run_wait
+    run_jca_sync
     run_entrypoint
-    run_jks_sync
+    run_casawatcher
+    run_mod_context
 fi
 
 # run oxAuth server
@@ -62,7 +81,7 @@ cd /opt/gluu/jetty/oxauth
 exec java \
     -server \
     -Xms1024m \
-    -Xms1024m \
+    -Xmx1024m \
     -XX:MaxMetaspaceSize=256m \
     -XX:+DisableExplicitGC \
     -XX:+UseContainerSupport \

@@ -2,6 +2,83 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.1_09
+
+Released on June 5th, 2020.
+
+* Upgraded `oxauth-server`.
+* Changed logging level for RClone wrapper script.
+
+## Version 4.1.1_08
+
+Released on May 21st, 2020.
+
+* Fixed Curl package installation.
+
+## Version 4.1.1_07
+
+Released on May 20th, 2020.
+
+* Added Curl package.
+* Added support for Jackrabbit (Java Content Repository/JCR).
+* Added RClone to interact with Jackrabbit via webdav protocol.
+
+## Version 4.1.1_06
+
+Released on April 29th, 2020.
+
+* Added Jython site-packages.
+
+## Version 4.1.1_05
+
+Released on April 20th, 2020.
+
+* Upgraded `oxauth-server`.
+
+## Version 4.1.1_04
+
+Released on April 17th, 2020.
+
+* Upgraded `oxauth-server`.
+
+* Upgrade Jython package.
+
+* Conform to changes in key rotation logic . Fixes [Key Rotation issue #7](https://github.com/GluuFederation/docker-key-rotation/issues/7) in commit https://github.com/GluuFederation/docker-oxauth/commit/16cd18d34304d0ce91f0e4598fbd6a91d8cf2d0f
+
+  1. oxAuth starts off using old/expired JWKS + JKS
+
+  1. Key-rotation re-generates new JWKS + JKS
+
+  1. Key-rotation creates a backup of old JKS and JWKS in oxAuth at /etc/certs/oxauth-keys.jks and /etc/certs/oxauth-keys.json. Note: At this point oxAuth is still using cached (old/expired) JWKS + JKS.
+
+  1. Key-rotation pushes new JKS .Note: At this point oxAuth is still using cached (old/expired) JWKS + JKS.
+
+  1. Key-rotation saves the JWKS in persistence:
+
+    - if the process fails key rotation restores the JSK from backup in oxAuth
+
+    - if the process succeeds, oxAuth reloads itself hence loading new JWKS + JKS pair
+
+
+## Version 4.1.1_03
+
+Released on April 2nd, 2020.
+
+* Upgraded `oxauth-server`.
+* Added `casawatcher` script.
+
+## Version 4.1.1_02
+
+Released on March 25th, 2020.
+
+* Upgraded `oxauth-server` v4.1.1 build at 2020-03-25 to address issue with key regeneration interval (https://github.com/GluuFederation/oxAuth/issues/1299).
+
+## Version 4.1.1_01
+
+Released on March 24th, 2020.
+
+* Conformed to Gluu Server v4.1.1.
+
 ## Version 4.1.0_01
 
 Released on March 5th, 2020.

@@ -5,7 +5,7 @@ FROM openjdk:8-jre-alpine3.9
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py-pip \
+    && apk add --no-cache openssl py-pip py3-pip curl \
     && apk add --no-cache --virtual build-deps wget git
 
 # =====
@@ -31,18 +31,18 @@ EXPOSE 8080
 # Jython
 # ======
 
-ENV JYTHON_VERSION=2.7.2a1
-RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer.jar -O /tmp/jython-installer.jar \
+ENV JYTHON_VERSION=2.7.2
+RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
-    && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython -t standard -e ensurepip \
+    && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
     && rm -f /tmp/jython-installer.jar
 
 # ======
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.1.0.Final \
-    GLUU_BUILD_DATE="2020-02-28 09:47"
+ENV GLUU_VERSION=4.1.1.Final \
+    GLUU_BUILD_DATE="2020-05-26 17:58"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -66,6 +66,16 @@ RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmp
 
 RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
     && chmod +x /usr/bin/tini
+
+# ======
+# rclone
+# ======
+
+ARG RCLONE_VERSION=v1.51.0
+RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip -O /tmp/rclone.zip \
+    && unzip -qq /tmp/rclone.zip -d /tmp \
+    && mv /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/bin/ \
+    && rm -rf /tmp/rclone-${RCLONE_VERSION}-linux-amd64 /tmp/rclone.zip
 
 # ======
 # Python
@@ -148,7 +158,13 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_WAIT_MAX_TIME=300 \
     GLUU_WAIT_SLEEP_DURATION=10 \
     GLUU_JKS_SYNC_INTERVAL=30 \
-    PYTHON_HOME=/opt/jython
+    PYTHON_HOME=/opt/jython \
+    GLUU_SYNC_CASA_MANIFESTS=false \
+    GLUU_CASAWATCHER_INTERVAL=10 \
+    GLUU_DOCUMENT_STORE_TYPE=LOCAL \
+    GLUU_JCA_URL=http://localhost:8080 \
+    GLUU_JCA_PASSWORD_FILE=/etc/gluu/conf/jca_password \
+    GLUU_JCA_USERNAME=admin
 
 # ==========
 # misc stuff
@@ -157,8 +173,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
 LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.0" \
-    release="01" \
+    version="4.1.1" \
+    release="09" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
@@ -197,5 +213,5 @@ RUN chmod +x /app/scripts/entrypoint.sh
 # # run as non-root user
 # USER 1000
 
-ENTRYPOINT ["tini", "-g", "--"]
-CMD ["/app/scripts/entrypoint.sh"]
+ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
+CMD ["sh", "/app/scripts/entrypoint.sh"]

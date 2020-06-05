@@ -4,8 +4,8 @@ Docker image packaging for oxAuth.
 
 ## Versions
 
-- Stable: `gluufederation/oxauth:4.1.0_01`
-- Unstable: `gluufederation/oxauth:4.1.0_dev`
+- Stable: `gluufederation/oxauth:4.1.1_09`
+- Unstable: `gluufederation/oxauth:4.1.1_dev`
 
 Refer to [Changelog](./CHANGES.md) for details on new features, bug fixes, or older releases.
 
@@ -53,3 +53,7 @@ The following environment variables are supported by the container:
 - `GLUU_COUCHBASE_CONN_TIMEOUT`: Connect timeout used when a bucket is opened (default to `10000` milliseconds).
 - `GLUU_COUCHBASE_CONN_MAX_WAIT`: Maximum time to wait before retrying connection (default to `20000` milliseconds).
 - `GLUU_COUCHBASE_SCAN_CONSISTENCY`: Default scan consistency; one of `not_bounded`, `request_plus`, or `statement_plus` (default to `not_bounded`).
+- `GLUU_SYNC_CASA_MANIFESTS`: Whether to sync Casa manifest files to Casa containers (default to `false`).
+- `GLUU_CASAWATCHER_INTERVAL`: Interval between Casa files synchronization (default to `10`).
+- `GLUU_CONTAINER_METADATA`: The name of scheduler to pull container metadata (one of `docker` or `kubernetes`; default to `docker`).
+- `GLUU_SYNC_JKS_INTERVAL`: Interval of JKS sync in seconds (if needed); obsolete.

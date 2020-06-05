@@ -96,7 +96,9 @@ def main():
         "changeit",
     )
 
-    manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
+    if not os.path.isfile("/etc/certs/idp-signing.crt"):
+        manager.secret.to_file("idp3SigningCertificateText", "/etc/certs/idp-signing.crt")
+
     manager.secret.to_file("passport_rp_jks_base64", "/etc/certs/passport-rp.jks",
                            decode=True, binary_mode=True)
 
@@ -122,6 +124,17 @@ def main():
 
     modify_jetty_xml()
     modify_webdefault_xml()
+
+    manager.secret.to_file(
+        "oxauth_jks_base64",
+        "/etc/certs/oxauth-keys.jks",
+        decode=True,
+        binary_mode=True,
+    )
+    with open("/etc/certs/oxauth-keys.json", "w") as f:
+        f.write(base64.b64decode(
+            manager.secret.get("oxauth_openid_key_base64")
+        ))
 
 
 if __name__ == "__main__":
