@@ -2,11 +2,26 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.1_09
+
+Released on June 5th, 2020.
+
+* Upgraded `oxauth-server`.
+* Changed logging level for RClone wrapper script.
+
+## Version 4.1.1_08
+
+Released on May 21st, 2020.
+
+* Fixed Curl package installation.
+
 ## Version 4.1.1_07
 
 Released on May 20th, 2020.
 
 * Added Curl package.
+* Added support for Jackrabbit (Java Content Repository/JCR).
+* Added RClone to interact with Jackrabbit via webdav protocol.
 
 ## Version 4.1.1_06
 
