@@ -28,7 +28,7 @@ from javax.faces.application import FacesMessage
 from org.gluu.jsf2.message import FacesMessages
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.oxauth.security import Identity
-from org.gluu.oxauth.service import UserService, AuthenticationService, SessionIdService
+from org.gluu.oxauth.service import AuthenticationService, UserService, SessionIdService
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.service.cdi.util import CdiUtil
 from org.gluu.util import StringHelper
@@ -38,7 +38,7 @@ class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
-    def init(self, configurationAttributes):
+    def init(self, customScript, configurationAttributes):
         print "OTP. Initialization"
 
         if not configurationAttributes.containsKey("otp_type"):
@@ -80,7 +80,10 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def getApiVersion(self):
-        return 1
+        return 11
+
+    def getAuthenticationMethodClaims(self, configurationAttributes):
+        return None
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         return True
@@ -262,7 +265,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 return "/auth/otp/enroll.xhtml"
             else:
                 #Modified for Casa compliance
-                return "/casa/otplogin.xhtml"
+                return "/casa/otp.xhtml"
         elif step == 3:
             return "/auth/otp/otplogin.xhtml"
 
