@@ -1,174 +1,17 @@
 import logging
 import logging.config
 import os
-import sys
-import tarfile
 import time
 from hashlib import md5
-from tempfile import TemporaryFile
-
-import docker
-from kubernetes import client, config
-from kubernetes.stream import stream
 
 from pygluu.containerlib.utils import as_boolean
+from pygluu.containerlib.meta import DockerMeta
+from pygluu.containerlib.meta import KubernetesMeta
 
 from settings import LOGGING_CONFIG
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("casawatcher")
-
-
-class BaseClient(object):
-    def get_casa_containers(self):
-        """Gets Casa containers.
-        Subclass __MUST__ implement this method.
-        """
-        raise NotImplementedError
-
-    def get_container_ip(self, container):
-        """Gets container's IP address.
-        Subclass __MUST__ implement this method.
-        """
-        raise NotImplementedError
-
-    def get_container_name(self, container):
-        """Gets container's IP address.
-        Subclass __MUST__ implement this method.
-        """
-        raise NotImplementedError
-
-    def copy_to_container(self, container, path):
-        """Gets container's IP address.
-        Subclass __MUST__ implement this method.
-        """
-        raise NotImplementedError
-
-
-class DockerClient(BaseClient):
-    def __init__(self, base_url="unix://var/run/docker.sock"):
-        self.client = docker.DockerClient(base_url=base_url)
-
-    def get_casa_containers(self):
-        return self.client.containers.list(filters={'label': 'APP_NAME=casa'})
-
-    def get_container_ip(self, container):
-        for _, network in container.attrs["NetworkSettings"]["Networks"].items():
-            return network["IPAddress"]
-
-    def get_container_name(self, container):
-        return container.name
-
-    def copy_to_container(self, container, path):
-        src = os.path.basename(path)
-        dirname = os.path.dirname(path)
-
-        os.chdir(dirname)
-
-        with tarfile.open(src + ".tar", "w:gz") as tar:
-            tar.add(src)
-
-        with open(src + ".tar", "rb") as f:
-            payload = f.read()
-
-            # create directory first
-            container.exec_run("mkdir -p {}".format(dirname))
-
-            # copy file
-            container.put_archive(os.path.dirname(path), payload)
-
-        try:
-            os.unlink(src + ".tar")
-        except OSError:
-            pass
-
-
-class KubernetesClient(BaseClient):
-    def __init__(self):
-        config_loaded = False
-
-        try:
-            config.load_incluster_config()
-            config_loaded = True
-        except config.config_exception.ConfigException:
-            logger.warning("Unable to load in-cluster configuration; trying to load from Kube config file")
-            try:
-                config.load_kube_config()
-                config_loaded = True
-            except (IOError, config.config_exception.ConfigException) as exc:
-                logger.warning("Unable to load Kube config; reason={}".format(exc))
-
-        if not config_loaded:
-            logger.error("Unable to load in-cluster or Kube config")
-            sys.exit(1)
-
-        cli = client.CoreV1Api()
-        cli.api_client.configuration.assert_hostname = False
-        self.client = cli
-
-    def get_casa_containers(self):
-        return self.client.list_pod_for_all_namespaces(
-            label_selector='APP_NAME=casa'
-        ).items
-
-    def get_container_ip(self, container):
-        return container.status.pod_ip
-
-    def get_container_name(self, container):
-        return container.metadata.name
-
-    def copy_to_container(self, container, path):
-        # make sure parent directory is created first
-        resp = stream(
-            self.client.connect_get_namespaced_pod_exec,
-            container.metadata.name,
-            container.metadata.namespace,
-            command=["/bin/sh", "-c", "mkdir -p {}".format(os.path.dirname(path))],
-            stderr=True,
-            stdin=True,
-            stdout=True,
-            tty=False,
-        )
-
-        # copy file implementation
-        resp = stream(
-            self.client.connect_get_namespaced_pod_exec,
-            container.metadata.name,
-            container.metadata.namespace,
-            command=["tar", "xvf", "-", "-C", "/"],
-            stderr=True,
-            stdin=True,
-            stdout=True,
-            tty=False,
-            _preload_content=False,
-        )
-
-        with TemporaryFile() as tar_buffer:
-            with tarfile.open(fileobj=tar_buffer, mode="w") as tar:
-                tar.add(path)
-
-            tar_buffer.seek(0)
-            commands = []
-            commands.append(tar_buffer.read())
-
-            while resp.is_open():
-                resp.update(timeout=1)
-                if resp.peek_stdout():
-                    # logger.info("STDOUT: %s" % resp.read_stdout())
-                    pass
-                if resp.peek_stderr():
-                    # logger.info("STDERR: %s" % resp.read_stderr())
-                    pass
-                if commands:
-                    c = commands.pop(0)
-                    try:
-                        resp.write_stdin(c.decode())
-                    except UnicodeDecodeError:
-                        # likely bytes from a binary
-                        resp.write_stdin(c.decode("ISO-8859-1"))
-                else:
-                    break
-            resp.close()
 
 
 class CasaWatcher(object):
@@ -179,9 +22,9 @@ class CasaWatcher(object):
         metadata = os.environ.get("GLUU_CONTAINER_METADATA", "docker")
 
         if metadata == "kubernetes":
-            self.client = KubernetesClient()
+            self.client = KubernetesMeta()
         else:
-            self.client = DockerClient()
+            self.client = DockerMeta()
 
     @property
     def rootdir(self):
@@ -197,7 +40,7 @@ class CasaWatcher(object):
     def sync_to_casa(self, filepaths):
         """Sync modified files to all Casa.
         """
-        containers = self.client.get_casa_containers()
+        containers = self.client.get_containers("APP_NAME=casa")
 
         if not containers:
             logger.warning("Unable to find any Casa container; make sure "
@@ -247,7 +90,7 @@ class CasaWatcher(object):
 
     def maybe_sync(self):
         try:
-            casa_nums = len(self.client.get_casa_containers())
+            casa_nums = len(self.client.get_containers("APP_NAME=casa"))
             # logger.info("Saved casa nums: " + str(self.casa_nums))
             # logger.info("Current casa nums: " + str(casa_nums))
 
@@ -259,7 +102,7 @@ class CasaWatcher(object):
                 return
 
             # check again in case we have new Casa container
-            casa_nums = len(self.client.get_casa_containers())
+            casa_nums = len(self.client.get_containers("APP_NAME=casa"))
 
             # probably scaled up
             if casa_nums > self.casa_nums:
