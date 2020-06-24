@@ -161,7 +161,11 @@ class KubernetesClient(BaseClient):
                     pass
                 if commands:
                     c = commands.pop(0)
-                    resp.write_stdin(c.decode())
+                    try:
+                        resp.write_stdin(c.decode())
+                    except UnicodeDecodeError:
+                        # likely bytes from a binary
+                        resp.write_stdin(c.decode("ISO-8859-1"))
                 else:
                     break
             resp.close()
