@@ -47,7 +47,7 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # ======
 
 ARG GLUU_VERSION=4.2.0-SNAPSHOT
-ARG GLUU_BUILD_DATE="2020-07-03 12:11"
+ARG GLUU_BUILD_DATE="2020-07-03 19:06"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
