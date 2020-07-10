@@ -2,6 +2,13 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.2_01
+
+Released on July 11th, 2020.
+
+* Upgraded `oxauth-server`.
+* Add support to use any client authentication for revoke token endpoint
+
 ## Version 4.1.1_09
 
 Released on June 5th, 2020.
