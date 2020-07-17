@@ -2,6 +2,42 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.2.0_01
+
+Released on July 18th, 2020.
+
+* Added support for Gluu Server v4.2.
+* Upraded to Java 11.
+* Upgraded to Python3.
+
+## Version 4.1.2_01
+
+Released on July 11th, 2020.
+
+* Upgraded `oxauth-server`.
+* Add support to use any client authentication for revoke token endpoint
+
+## Version 4.1.1_09
+
+Released on June 5th, 2020.
+
+* Upgraded `oxauth-server`.
+* Changed logging level for RClone wrapper script.
+
+## Version 4.1.1_08
+
+Released on May 21st, 2020.
+
+* Fixed Curl package installation.
+
+## Version 4.1.1_07
+
+Released on May 20th, 2020.
+
+* Added Curl package.
+* Added support for Jackrabbit (Java Content Repository/JCR).
+* Added RClone to interact with Jackrabbit via webdav protocol.
+
 ## Version 4.1.1_06
 
 Released on April 29th, 2020.
