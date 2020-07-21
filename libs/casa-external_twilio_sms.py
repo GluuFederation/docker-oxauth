@@ -25,7 +25,7 @@ class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
-    def init(self, configurationAttributes):
+    def init(self, customScript, configurationAttributes):
         print "Twilio SMS. Initialized"
         return True
 
@@ -34,7 +34,10 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def getApiVersion(self):
-        return 1
+        return 11
+
+    def getAuthenticationMethodClaims(self, configurationAttributes):
+        return None
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         return True
@@ -109,7 +112,7 @@ class PersonAuthentication(PersonAuthenticationType):
                     return False
 
             success = False
-            form_passcode = ServerUtil.getFirstValue(requestParameters, "passcode")
+            form_passcode = ServerUtil.getFirstValue(requestParameters, "OtpSmsloginForm:passcode")
 
             if form_passcode != None and code == form_passcode:
                 print "TwilioSMS. authenticate. 6-digit code matches with code sent via SMS"

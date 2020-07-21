@@ -1,21 +1,26 @@
-FROM openjdk:8-jre-alpine3.9
+FROM adoptopenjdk/openjdk11:alpine-jre
+
+# symlink JVM
+RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
+    && ln -sf /opt/java/openjdk /usr/lib/jvm/default-jvm/jre \
+    && ln -sf /usr/lib/jvm/default-jvm/jre /usr/java/latest/jre
 
 # ===============
 # Alpine packages
 # ===============
 
 RUN apk update \
-    && apk add --no-cache openssl py-pip py3-pip curl \
+    && apk add --no-cache openssl py3-pip tini curl \
     && apk add --no-cache --virtual build-deps wget git
 
 # =====
 # Jetty
 # =====
 
-ENV JETTY_VERSION=9.4.24.v20191120 \
-    JETTY_HOME=/opt/jetty \
-    JETTY_BASE=/opt/gluu/jetty \
-    JETTY_USER_HOME_LIB=/home/jetty/lib
+ARG JETTY_VERSION=9.4.26.v20200117
+ARG JETTY_HOME=/opt/jetty
+ARG JETTY_BASE=/opt/gluu/jetty
+ARG JETTY_USER_HOME_LIB=/home/jetty/lib
 
 # Install jetty
 RUN wget -q https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${JETTY_VERSION}/jetty-distribution-${JETTY_VERSION}.tar.gz -O /tmp/jetty.tar.gz \
@@ -31,7 +36,7 @@ EXPOSE 8080
 # Jython
 # ======
 
-ENV JYTHON_VERSION=2.7.2
+ARG JYTHON_VERSION=2.7.2
 RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
@@ -41,8 +46,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.1.1.Final \
-    GLUU_BUILD_DATE="2020-05-26 17:58"
+ARG GLUU_VERSION=4.2.0.Final
+ARG GLUU_BUILD_DATE="2020-07-17 16:37"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -55,17 +60,10 @@ RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxa
 # Custom libs
 # ===========
 
-ENV TWILIO_VERSION 7.17.0
+ARG TWILIO_VERSION=7.17.0
 RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio.jar
-ENV JSMPP_VERSION 2.3.7
+ARG JSMPP_VERSION=2.3.7
 RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
-
-# ====
-# Tini
-# ====
-
-RUN wget -q https://github.com/krallin/tini/releases/download/v0.18.0/tini-static -O /usr/bin/tini \
-    && chmod +x /usr/bin/tini
 
 # ======
 # rclone
@@ -81,9 +79,10 @@ RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}
 # Python
 # ======
 
+RUN apk add --no-cache py3-cryptography
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install -U pip \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 install -U pip \
+    && pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # =======
 # Cleanup
@@ -173,8 +172,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
 LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.1" \
-    release="09" \
+    version="4.2.0" \
+    release="01" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
@@ -190,28 +189,12 @@ COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
 COPY jetty/oxauth.xml ${JETTY_BASE}/oxauth/webapps/
 COPY conf/*.tmpl /app/templates/
-COPY conf/fido2 /etc/gluu/conf/fido2
-RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
-    /etc/gluu/conf/fido2/mds/toc \
-    /etc/gluu/conf/fido2/server_metadata
+# COPY conf/fido2 /etc/gluu/conf/fido2
+# RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
+#     /etc/gluu/conf/fido2/mds/toc \
+#     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
-
-# # create non-root user
-# RUN useradd -ms /bin/sh --uid 1000 jetty \
-#     && usermod -a -G root jetty
-
-# # adjust ownership
-# RUN chown -R 1000:1000 /opt/gluu/jetty \
-#     && chown -R 1000:1000 /deploy \
-#     && chmod -R g+w /usr/lib/jvm/default-jvm/jre/lib/security/cacerts \
-#     && chgrp -R 0 /opt/gluu/jetty && chmod -R g=u /opt/gluu/jetty \
-#     && chgrp -R 0 /deploy && chmod -R g=u /deploy \
-#     && chgrp -R 0 /etc/certs && chmod -R g=u /etc/certs \
-#     && chgrp -R 0 /etc/gluu && chmod -R g=u /etc/gluu
-
-# # run as non-root user
-# USER 1000
 
 ENTRYPOINT ["tini", "-e", "143", "-g", "--"]
 CMD ["sh", "/app/scripts/entrypoint.sh"]

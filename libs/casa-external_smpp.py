@@ -8,7 +8,7 @@ from javax.faces.application import FacesMessage
 
 from org.gluu.jsf2.message import FacesMessages
 from org.gluu.oxauth.security import Identity
-from org.gluu.oxauth.service import UserService, AuthenticationService
+from org.gluu.oxauth.service import AuthenticationService, UserService
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.service.cdi.util import CdiUtil
@@ -61,7 +61,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         return value
 
-    def init(self, configurationAttributes):
+    def init(self, customScript, configurationAttributes):
         print("SMPP Initialization")
 
         self.TIME_FORMATTER = AbsoluteTimeFormatter()
@@ -214,7 +214,10 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def getApiVersion(self):
-        return 1
+        return 11
+
+    def getAuthenticationMethodClaims(self, configurationAttributes):
+        return None
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         return True
@@ -276,7 +279,7 @@ class PersonAuthentication(PersonAuthenticationType):
                 else:
                     return False
 
-            form_passcode = ServerUtil.getFirstValue(requestParameters, "passcode")
+            form_passcode = ServerUtil.getFirstValue(requestParameters, "OtpSmsloginForm:passcode")
             if form_passcode and code == form_passcode:
                 print("SMPP authenticate. 6-digit code matches with code sent via SMS")
                 return True

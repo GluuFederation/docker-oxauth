@@ -9,7 +9,8 @@ from org.gluu.model.custom.script.type.auth import PersonAuthenticationType
 from org.gluu.oxauth.client.fido.u2f import FidoU2fClientFactory
 from org.gluu.oxauth.model.config import Constants
 from org.gluu.oxauth.security import Identity
-from org.gluu.oxauth.service import UserService, AuthenticationService, SessionIdService
+from org.gluu.oxauth.service import AuthenticationService, SessionIdService
+from org.gluu.oxauth.service.common import UserService
 from org.gluu.oxauth.service.fido.u2f import DeviceRegistrationService
 from org.gluu.oxauth.util import ServerUtil
 from org.gluu.service.cdi.util import CdiUtil
@@ -20,7 +21,7 @@ class PersonAuthentication(PersonAuthenticationType):
     def __init__(self, currentTimeMillis):
         self.currentTimeMillis = currentTimeMillis
 
-    def init(self, configurationAttributes):
+    def init(self, customScript, configurationAttributes):
         print "U2F. Initialization"
 
         print "U2F. Initialization. Downloading U2F metadata"
@@ -59,7 +60,10 @@ class PersonAuthentication(PersonAuthenticationType):
         return True
 
     def getApiVersion(self):
-        return 1
+        return 11
+
+    def getAuthenticationMethodClaims(self, configurationAttributes):
+        return None
 
     def isValidAuthenticationMethod(self, usageType, configurationAttributes):
         return True
@@ -221,7 +225,7 @@ class PersonAuthentication(PersonAuthenticationType):
 
         hasDevices = False
         for device in userDevices:
-            if device.getStatus().getValue() == "active":
+            if device.getStatus() != None and device.getStatus().getValue() == "active":
                 hasDevices=True
                 break
 
