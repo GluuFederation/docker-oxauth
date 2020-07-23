@@ -49,9 +49,6 @@ python3 /app/scripts/mod_context.py
 cd /opt/gluu/jetty/oxauth
 exec java \
     -server \
-    -Xms1024m \
-    -Xmx1024m \
-    -XX:MaxMetaspaceSize=256m \
     -XX:+DisableExplicitGC \
     -XX:+UseContainerSupport \
     -XX:MaxRAMPercentage=$GLUU_MAX_RAM_PERCENTAGE \
@@ -61,4 +58,5 @@ exec java \
     -Dpython.home=/opt/jython \
     -Djava.io.tmpdir=/tmp \
     $(get_debug_opt) \
+    ${GLUU_JAVA_OPTIONS} \
     -jar /opt/jetty/start.jar
