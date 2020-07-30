@@ -19,13 +19,13 @@ move_builtin_jars() {
     # move twilio lib
     if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/twilio.jar ]; then
         mkdir -p /opt/gluu/jetty/oxauth/custom/libs
-        mv /tmp/twilio.jar /opt/gluu/jetty/oxauth/custom/libs/twilio.jar
+        mv /usr/share/java/twilio.jar /opt/gluu/jetty/oxauth/custom/libs/twilio.jar
     fi
 
     # move jsmpp lib
     if [ ! -f /opt/gluu/jetty/oxauth/custom/libs/jsmpp.jar ]; then
         mkdir -p /opt/gluu/jetty/oxauth/custom/libs
-        mv /tmp/jsmpp.jar /opt/gluu/jetty/oxauth/custom/libs/jsmpp.jar
+        mv /usr/share/java/jsmpp.jar /opt/gluu/jetty/oxauth/custom/libs/jsmpp.jar
     fi
 }
 
@@ -47,6 +47,7 @@ python3 /app/scripts/mod_context.py
 
 # run oxAuth server
 cd /opt/gluu/jetty/oxauth
+mkdir -p /opt/jetty/temp
 exec java \
     -server \
     -XX:+DisableExplicitGC \
@@ -56,7 +57,7 @@ exec java \
     -Dserver.base=/opt/gluu/jetty/oxauth \
     -Dlog.base=/opt/gluu/jetty/oxauth \
     -Dpython.home=/opt/jython \
-    -Djava.io.tmpdir=/tmp \
+    -Djava.io.tmpdir=/opt/jetty/temp \
     $(get_debug_opt) \
     ${GLUU_JAVA_OPTIONS} \
     -jar /opt/jetty/start.jar
