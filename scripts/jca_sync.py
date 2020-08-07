@@ -21,6 +21,21 @@ def sync_from_webdav(url, username, password):
     rclone.copy_from(SYNC_DIR, SYNC_DIR)
 
 
+def sync_to_webdav(url, username, password):
+    rclone = RClone(url, username, password)
+    rclone.configure()
+
+    files = (
+        "/etc/certs/otp_configuration.json",
+        "/etc/certs/super_gluu_creds.json",
+    )
+
+    for local in files:
+        remote = os.path.dirname(local)
+        logger.info(f"Sync file {local} to {url}{ROOT_DIR}{remote}")
+        rclone.copy_to(remote, local)
+
+
 def get_sync_interval():
     default = 5 * 60  # 5 minutes
 
@@ -50,6 +65,7 @@ def main():
     try:
         while True:
             sync_from_webdav(url, username, password)
+            sync_to_webdav(url, username, password)
             time.sleep(sync_interval)
     except KeyboardInterrupt:
         logger.warning("Canceled by user; exiting ...")
