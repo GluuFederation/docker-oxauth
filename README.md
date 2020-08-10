@@ -55,5 +55,8 @@ The following environment variables are supported by the container:
 - `GLUU_COUCHBASE_SCAN_CONSISTENCY`: Default scan consistency; one of `not_bounded`, `request_plus`, or `statement_plus` (default to `not_bounded`).
 - `GLUU_JAVA_OPTIONS`: Java options passed to entrypoint, i.e. `-Xmx1024m` (default to empty-string).
 - `GLUU_DOCUMENT_STORE_TYPE`: Document store type (one of `LOCAL` or `JCA`; default to `LOCAL`).
-- `GLUU_JCA_URL`: URL to remote repository (default to `http://localhost:8080`).
-- `GLUU_JCA_SYNC_INTERVAL`: Interval between files sync (default to `300` seconds).
+- `GLUU_JCA_URL`: __DEPRECATED__ in favor of `GLUU_JACKRABBIT_URL`.
+- `GLUU_JACKRABBIT_URL`: URL to remote repository (default to `http://localhost:8080`).
+- `GLUU_JCA_SYNC_INTERVAL`: __DEPRECATED__ in favor of `GLUU_JACKRABBIT_SYNC_INTERVAL`.
+- `GLUU_JACKRABBIT_SYNC_INTERVAL`: Interval between files sync (default to `300` seconds).
+- `GLUU_JACKRABBIT_ADMIN_ID_FILE`: Absolute path to file contains ID for admin user (default to `/etc/gluu/conf/jackrabbit_admin_id`).

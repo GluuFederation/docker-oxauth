@@ -162,9 +162,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_JKS_SYNC_INTERVAL=30 \
     PYTHON_HOME=/opt/jython \
     GLUU_DOCUMENT_STORE_TYPE=LOCAL \
-    GLUU_JCA_URL=http://localhost:8080 \
-    GLUU_JCA_PASSWORD_FILE=/etc/gluu/conf/jca_password \
-    GLUU_JCA_USERNAME=admin \
+    GLUU_JACKRABBIT_URL=http://localhost:8080 \
+    GLUU_JACKRABBIT_ADMIN_ID_FILE=/etc/gluu/conf/jackrabbit_admin_id \
     GLUU_JAVA_OPTIONS=""
 
 # ==========
