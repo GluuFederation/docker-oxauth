@@ -41,6 +41,7 @@ if [ ! -f /deploy/touched ]; then
     touch /deploy/touched
 fi
 
+python3 /app/scripts/jks_sync.py &
 python3 /app/scripts/jca_sync.py &
 python3 /app/scripts/mod_context.py
 
