@@ -2,6 +2,12 @@
 
 Here you can see an overview of changes between each release.
 
+## Version 4.1.3_02
+
+Released on August 26th, 2020.
+
+* Re-enable periodical keystore sync (ref: https://github.com/GluuFederation/docker-oxauth/issues/26).
+
 ## Version 4.1.3_01
 
 Released on August 13th, 2020.
