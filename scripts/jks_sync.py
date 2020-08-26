@@ -5,6 +5,7 @@ import os
 import time
 
 from pygluu.containerlib import get_manager
+from pygluu.containerlib.utils import as_boolean
 
 from settings import LOGGING_CONFIG
 
@@ -58,6 +59,13 @@ def sync_jwks():
 
 
 def main():
+    sync_enabled = as_boolean(
+        os.environ.get("GLUU_SYNC_JKS_ENABLED", False)
+    )
+    if not sync_enabled:
+        logger.warning("JKS sync is disabled")
+        return
+
     # delay between JKS sync (in seconds)
     sync_interval = os.environ.get("GLUU_SYNC_JKS_INTERVAL", 30)
 

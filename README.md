@@ -56,4 +56,5 @@ The following environment variables are supported by the container:
 - `GLUU_SYNC_CASA_MANIFESTS`: Whether to sync Casa manifest files to Casa containers (default to `false`).
 - `GLUU_CASAWATCHER_INTERVAL`: Interval between Casa files synchronization (default to `10`).
 - `GLUU_CONTAINER_METADATA`: The name of scheduler to pull container metadata (one of `docker` or `kubernetes`; default to `docker`).
+- `GLUU_SYNC_JKS_ENABLED`: Whether to enable JKS sync (default to `false`). Enable this flag if using `gluufederation/key-rotation:4.1.1_02` and below (for key-regeneration).
 - `GLUU_SYNC_JKS_INTERVAL`: Interval of JKS sync in seconds (if needed); obsolete.

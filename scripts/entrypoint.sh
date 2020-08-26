@@ -40,9 +40,9 @@ run_entrypoint() {
     fi
 }
 
-# run_jks_sync() {
-#     python /app/scripts/jks_sync.py &
-# }
+run_jks_sync() {
+    python /app/scripts/jks_sync.py &
+}
 
 run_jca_sync() {
     python3 /app/scripts/jca_sync.py &
@@ -66,12 +66,14 @@ if [ -f /etc/redhat-release ]; then
     source scl_source enable python27 && run_wait
     source scl_source enable python3 && run_jca_sync
     source scl_source enable python27 && run_entrypoint
+    source scl_source enable python27 && run_jks_sync
     source scl_source enable python27 && run_casawatcher
     source scl_source enable python27 && run_mod_context
 else
     run_wait
     run_jca_sync
     run_entrypoint
+    run_jks_sync
     run_casawatcher
     run_mod_context
 fi

@@ -13,6 +13,7 @@ from pygluu.containerlib.persistence import sync_couchbase_truststore
 from pygluu.containerlib.persistence import sync_ldap_truststore
 from pygluu.containerlib.utils import cert_to_truststore
 from pygluu.containerlib.utils import get_server_certificate
+from pygluu.containerlib.utils import as_boolean
 
 manager = get_manager()
 
@@ -125,16 +126,20 @@ def main():
     modify_jetty_xml()
     modify_webdefault_xml()
 
-    manager.secret.to_file(
-        "oxauth_jks_base64",
-        "/etc/certs/oxauth-keys.jks",
-        decode=True,
-        binary_mode=True,
+    sync_enabled = as_boolean(
+        os.environ.get("GLUU_SYNC_JKS_ENABLED", False)
     )
-    with open("/etc/certs/oxauth-keys.json", "w") as f:
-        f.write(base64.b64decode(
-            manager.secret.get("oxauth_openid_key_base64")
-        ))
+    if not sync_enabled:
+        manager.secret.to_file(
+            "oxauth_jks_base64",
+            "/etc/certs/oxauth-keys.jks",
+            decode=True,
+            binary_mode=True,
+        )
+        with open("/etc/certs/oxauth-keys.json", "w") as f:
+            f.write(base64.b64decode(
+                manager.secret.get("oxauth_openid_key_base64")
+            ))
 
 
 if __name__ == "__main__":
