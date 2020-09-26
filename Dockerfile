@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:alpine-jre
+FROM adoptopenjdk/openjdk11:jre-11.0.8_10-alpine
 
 # symlink JVM
 RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
@@ -12,6 +12,16 @@ RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
 RUN apk update \
     && apk add --no-cache openssl py3-pip tini curl bash \
     && apk add --no-cache --virtual build-deps wget git
+
+# ======
+# rclone
+# ======
+
+ARG RCLONE_VERSION=v1.51.0
+RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip -O /tmp/rclone.zip \
+    && unzip -qq /tmp/rclone.zip -d /tmp \
+    && mv /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/bin/ \
+    && rm -rf /tmp/rclone-${RCLONE_VERSION}-linux-amd64 /tmp/rclone.zip
 
 # =====
 # Jetty
@@ -40,14 +50,14 @@ ARG JYTHON_VERSION=2.7.2
 RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
-    && rm -f /tmp/jython-installer.jar
+    && rm -f /tmp/jython-installer.jar /tmp/*.properties
 
 # ======
 # oxAuth
 # ======
 
-ARG GLUU_VERSION=4.2.0.Final
-ARG GLUU_BUILD_DATE="2020-07-17 16:37"
+ENV GLUU_VERSION=4.2.1.Final
+ENV GLUU_BUILD_DATE="2020-09-24 08:25"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -60,29 +70,22 @@ RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxa
 # Custom libs
 # ===========
 
+RUN mkdir -p /usr/share/java
+
 ARG TWILIO_VERSION=7.17.0
-RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /tmp/twilio.jar
+RUN wget -q https://repo1.maven.org/maven2/com/twilio/sdk/twilio/${TWILIO_VERSION}/twilio-${TWILIO_VERSION}.jar -O /usr/share/java/twilio.jar
 ARG JSMPP_VERSION=2.3.7
-RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /tmp/jsmpp.jar
-
-# ======
-# rclone
-# ======
-
-ARG RCLONE_VERSION=v1.51.0
-RUN wget -q https://github.com/rclone/rclone/releases/download/${RCLONE_VERSION}/rclone-${RCLONE_VERSION}-linux-amd64.zip -O /tmp/rclone.zip \
-    && unzip -qq /tmp/rclone.zip -d /tmp \
-    && mv /tmp/rclone-${RCLONE_VERSION}-linux-amd64/rclone /usr/bin/ \
-    && rm -rf /tmp/rclone-${RCLONE_VERSION}-linux-amd64 /tmp/rclone.zip
+RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmpp-${JSMPP_VERSION}.jar -O /usr/share/java/jsmpp.jar
 
 # ======
 # Python
 # ======
 
 RUN apk add --no-cache py3-cryptography
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip3 install -U pip \
-    && pip3 install --no-cache-dir -r /tmp/requirements.txt
+    && pip3 install --no-cache-dir -r /app/requirements.txt \
+    && rm -rf /src/pygluu-containerlib/.git
 
 # =======
 # Cleanup
@@ -156,14 +159,15 @@ ENV GLUU_PERSISTENCE_TYPE=ldap \
 ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_WAIT_MAX_TIME=300 \
     GLUU_WAIT_SLEEP_DURATION=10 \
-    GLUU_JKS_SYNC_INTERVAL=30 \
     PYTHON_HOME=/opt/jython \
-    GLUU_SYNC_CASA_MANIFESTS=false \
-    GLUU_CASAWATCHER_INTERVAL=10 \
     GLUU_DOCUMENT_STORE_TYPE=LOCAL \
-    GLUU_JCA_URL=http://localhost:8080 \
-    GLUU_JCA_PASSWORD_FILE=/etc/gluu/conf/jca_password \
-    GLUU_JCA_USERNAME=admin
+    GLUU_JACKRABBIT_URL=http://localhost:8080 \
+    GLUU_JACKRABBIT_ADMIN_ID=admin \
+    GLUU_JACKRABBIT_ADMIN_PASSWORD_FILE=/etc/gluu/conf/jackrabbit_admin_password \
+    GLUU_JAVA_OPTIONS="" \
+    GLUU_SSL_CERT_FROM_SECRETS=false \
+    GLUU_SYNC_JKS_ENABLED=false \
+    GLUU_SYNC_JKS_INTERVAL=30
 
 # ==========
 # misc stuff
@@ -172,7 +176,7 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
 LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.0" \
+    version="4.2.1" \
     release="02" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"

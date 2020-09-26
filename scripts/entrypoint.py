@@ -13,6 +13,7 @@ from pygluu.containerlib.persistence import sync_couchbase_truststore
 from pygluu.containerlib.persistence import sync_ldap_truststore
 from pygluu.containerlib.utils import cert_to_truststore
 from pygluu.containerlib.utils import get_server_certificate
+from pygluu.containerlib.utils import as_boolean
 
 manager = get_manager()
 
@@ -87,7 +88,10 @@ def main():
         render_hybrid_properties("/etc/gluu/conf/gluu-hybrid.properties")
 
     if not os.path.isfile("/etc/certs/gluu_https.crt"):
-        get_server_certificate(manager.config.get("hostname"), 443, "/etc/certs/gluu_https.crt")
+        if as_boolean(os.environ.get("GLUU_SSL_CERT_FROM_SECRETS", False)):
+            manager.secret.to_file("ssl_cert", "/etc/certs/gluu_https.crt")
+        else:
+            get_server_certificate(manager.config.get("hostname"), 443, "/etc/certs/gluu_https.crt")
 
     cert_to_truststore(
         "gluu_https",
@@ -116,33 +120,37 @@ def main():
             base64.b64decode(manager.secret.get("api_rs_client_base64_jwks")).decode()
         )
 
-    manager.secret.to_file("scim_rs_jks_base64", "/etc/certs/scim-rs.jks",
-                           decode=True, binary_mode=True)
-    with open(manager.config.get("scim_rs_client_jwks_fn"), "w") as f:
-        f.write(
-            base64.b64decode(manager.secret.get("scim_rs_client_base64_jwks")).decode()
-        )
+    # manager.secret.to_file("scim_rs_jks_base64", "/etc/certs/scim-rs.jks",
+    #                        decode=True, binary_mode=True)
+    # with open(manager.config.get("scim_rs_client_jwks_fn"), "w") as f:
+    #     f.write(
+    #         base64.b64decode(manager.secret.get("scim_rs_client_base64_jwks")).decode()
+    #     )
 
-    manager.secret.to_file("scim_rp_jks_base64", "/etc/certs/scim-rp.jks",
-                           decode=True, binary_mode=True)
-    with open(manager.config.get("scim_rp_client_jwks_fn"), "w") as f:
-        f.write(
-            base64.b64decode(manager.secret.get("scim_rp_client_base64_jwks")).decode()
-        )
+    # manager.secret.to_file("scim_rp_jks_base64", "/etc/certs/scim-rp.jks",
+    #                        decode=True, binary_mode=True)
+    # with open(manager.config.get("scim_rp_client_jwks_fn"), "w") as f:
+    #     f.write(
+    #         base64.b64decode(manager.secret.get("scim_rp_client_base64_jwks")).decode()
+    #     )
 
     modify_jetty_xml()
     modify_webdefault_xml()
 
-    manager.secret.to_file(
-        "oxauth_jks_base64",
-        "/etc/certs/oxauth-keys.jks",
-        decode=True,
-        binary_mode=True,
+    sync_enabled = as_boolean(
+        os.environ.get("GLUU_SYNC_JKS_ENABLED", False)
     )
-    with open("/etc/certs/oxauth-keys.json", "w") as f:
-        f.write(
-            base64.b64decode(manager.secret.get("oxauth_openid_key_base64")).decode()
+    if not sync_enabled:
+        manager.secret.to_file(
+            "oxauth_jks_base64",
+            "/etc/certs/oxauth-keys.jks",
+            decode=True,
+            binary_mode=True,
         )
+        with open("/etc/certs/oxauth-keys.json", "w") as f:
+            f.write(
+                base64.b64decode(manager.secret.get("oxauth_openid_key_base64")).decode()
+            )
 
 
 if __name__ == "__main__":
