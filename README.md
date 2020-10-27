@@ -4,7 +4,7 @@ Docker image packaging for oxAuth.
 
 ## Versions
 
-- Stable: `gluufederation/oxauth:4.1.3_07`
+- Stable: `gluufederation/oxauth:4.1.3_08`
 - Unstable: `gluufederation/oxauth:4.1.3_dev`
 
 Refer to [Changelog](./CHANGES.md) for details on new features, bug fixes, or older releases.
