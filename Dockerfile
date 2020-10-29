@@ -56,8 +56,8 @@ RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-$
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.2.1.Final
-ENV GLUU_BUILD_DATE="2020-09-26 12:32"
+ENV GLUU_VERSION=4.2.2-SNAPSHOT
+ENV GLUU_BUILD_DATE="2020-10-29 16:09"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -81,7 +81,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmp
 # Python
 # ======
 
-RUN apk add --no-cache py3-cryptography
+RUN apk add --no-cache py3-cryptography py3-multidict py3-yarl
 COPY requirements.txt /app/requirements.txt
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r /app/requirements.txt \
@@ -193,10 +193,6 @@ COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
 COPY jetty/oxauth.xml ${JETTY_BASE}/oxauth/webapps/
 COPY conf/*.tmpl /app/templates/
-# COPY conf/fido2 /etc/gluu/conf/fido2
-# RUN mkdir -p /etc/gluu/conf/fido2/mds/cert \
-#     /etc/gluu/conf/fido2/mds/toc \
-#     /etc/gluu/conf/fido2/server_metadata
 COPY scripts /app/scripts
 RUN chmod +x /app/scripts/entrypoint.sh
 
