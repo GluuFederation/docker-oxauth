@@ -81,7 +81,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmp
 # Python
 # ======
 
-RUN apk add --no-cache py3-cryptography py3-multidict py3-yarl
+RUN apk add --no-cache py3-cryptography
 COPY requirements.txt /app/requirements.txt
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r /app/requirements.txt \
@@ -176,8 +176,8 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
 LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.1" \
-    release="02" \
+    version="4.2.2" \
+    release="dev" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
