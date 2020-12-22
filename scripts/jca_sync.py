@@ -7,6 +7,7 @@ import time
 from webdav3.client import Client
 from webdav3.exceptions import RemoteResourceNotFound
 from webdav3.exceptions import NoConnection
+from webdav3.exceptions import RemoteParentNotFound
 
 from settings import LOGGING_CONFIG
 
@@ -63,7 +64,7 @@ def sync_to_webdav(url, username, password):
         try:
             logger.info(f"Sync {file_} to {url}{ROOT_DIR}{file_}")
             client.upload_file(file_, file_)
-        except (RemoteResourceNotFound, NoConnection) as exc:
+        except (RemoteResourceNotFound, NoConnection, RemoteParentNotFound) as exc:
             logger.warning(f"Unable to sync {file_} to {url}{ROOT_DIR}{file_}; reason={exc}")
 
 
