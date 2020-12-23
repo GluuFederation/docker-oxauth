@@ -63,6 +63,8 @@ def sync_to_webdav(url, username, password):
     for file_ in files:
         try:
             logger.info(f"Sync {file_} to {url}{ROOT_DIR}{file_}")
+            client.mkdir("/etc")
+            client.mkdir("/etc/certs")
             client.upload_file(file_, file_)
         except (RemoteResourceNotFound, NoConnection, RemoteParentNotFound) as exc:
             logger.warning(f"Unable to sync {file_} to {url}{ROOT_DIR}{file_}; reason={exc}")
