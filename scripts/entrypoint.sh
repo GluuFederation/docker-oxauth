@@ -7,7 +7,7 @@ set -e
 # ========
 profiler_opt=""
 if [ "${GLUU_JAVA_PROFILER}" = true ]; then
-    profiler_opt="-agentpath:/usr/local/YourKit-JavaProfiler-2020.9/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all"
+    profiler_opt="-agentpath:/usr/local/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all"
     # ========
     # jattach
     # ========
@@ -18,13 +18,13 @@ if [ "${GLUU_JAVA_PROFILER}" = true ]; then
     # YourKit Java Profiler agents
     # ============================
 
-    wget https://www.yourkit.com/download/docker/YourKit-JavaProfiler-2020.9-docker.zip -P /tmp/ && \
-    unzip /tmp/YourKit-JavaProfiler-2020.9-docker.zip -d /usr/local && \
-    rm /tmp/YourKit-JavaProfiler-2020.9-docker.zip && \
+    wget https://www.yourkit.com/download/docker/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"-docker.zip -P /tmp/ && \
+    unzip /tmp/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"-docker.zip -d /usr/local && \
+    rm /tmp/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"-docker.zip && \
     LD_LIBRARY_PATH=/lib64
     if [ -n "${GLUU_JAVA_PROFILER_PORT}" ]; then
         profiler_opt="
-            -agentpath:/usr/local/YourKit-JavaProfiler-2020.9/bin/linux-x86-64/libyjpagent.so=port=${GLUU_JAVA_PROFILER_PORT},listen=all
+            -agentpath:/usr/local/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"/bin/linux-x86-64/libyjpagent.so=port=${GLUU_JAVA_PROFILER_PORT},listen=all
         "
     fi
 fi
