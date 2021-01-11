@@ -170,6 +170,14 @@ ENV GLUU_MAX_RAM_PERCENTAGE=75.0 \
     GLUU_SYNC_JKS_ENABLED=false \
     GLUU_SYNC_JKS_INTERVAL=30
 
+# ===========
+# Profiler ENV
+# ===========
+
+ENV GLUU_JAVA_PROFILER=false \
+    GLUU_JAVA_PROFILER_PORT=10001
+
+
 # ==========
 # misc stuff
 # ==========
