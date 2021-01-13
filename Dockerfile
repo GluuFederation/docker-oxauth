@@ -72,8 +72,6 @@ RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmp
 # Python
 # ======
 
-# webdavclient3 requires binary compiled from libxslt-dev
-RUN apk add --no-cache libxslt-dev
 COPY requirements.txt /app/requirements.txt
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r /app/requirements.txt \
@@ -83,8 +81,19 @@ RUN pip3 install -U pip \
 # Cleanup
 # =======
 
-RUN apk del build-deps \
-    && rm -rf /var/cache/apk/*
+# webdavclient3 requires binary compiled from libxslt-dev
+RUN cp /usr/lib/libxslt.so.1 /tmp/libxslt.so.1 \
+    && cp /usr/lib/libexslt.so.0 /tmp/libexslt.so.0 \
+    && cp /usr/lib/libxml2.so.2 /tmp/libxml2.so.2 \
+    && cp /usr/lib/libgcrypt.so.20 /tmp/libgcrypt.so.20 \
+    && cp /usr/lib/libgpg-error.so.0 /tmp/libgpg-error.so.0 \
+    && apk del build-deps \
+    && rm -rf /var/cache/apk/* \
+    && mv /tmp/libxslt.so.1 /usr/lib/libxslt.so.1 \
+    && mv /tmp/libexslt.so.0 /usr/lib/libexslt.so.0 \
+    && mv /tmp/libxml2.so.2 /usr/lib/libxml2.so.2 \
+    && mv /tmp/libgcrypt.so.20 /usr/lib/libgcrypt.so.20 \
+    && mv /tmp/libgpg-error.so.0 /usr/lib/libgpg-error.so.0
 
 # =======
 # License
