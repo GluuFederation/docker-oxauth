@@ -11,7 +11,7 @@ RUN mkdir -p /usr/lib/jvm/default-jvm /usr/java/latest \
 
 RUN apk update \
     && apk add --no-cache openssl py3-pip tini curl bash \
-    && apk add --no-cache --virtual build-deps wget git
+    && apk add --no-cache --virtual build-deps wget git gcc musl-dev python3-dev libffi-dev openssl-dev
 
 # =====
 # Jetty
@@ -37,9 +37,10 @@ EXPOSE 8080
 # ======
 
 ARG JYTHON_VERSION=2.7.2
-RUN wget -q https://ox.gluu.org/dist/jython/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar -O /tmp/jython-installer.jar \
+RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar -O /tmp/jython-installer.jar \
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
+    && /opt/jython/bin/pip install --no-cache-dir "pip==19.2" \
     && rm -f /tmp/jython-installer.jar /tmp/*.properties
 
 # ======
@@ -71,7 +72,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/jsmpp/jsmpp/${JSMPP_VERSION}/jsmp
 # Python
 # ======
 
-RUN apk add --no-cache py3-cryptography py3-lxml
+RUN apk add --no-cache py3-lxml
 COPY requirements.txt /app/requirements.txt
 RUN pip3 install -U pip \
     && pip3 install --no-cache-dir -r /app/requirements.txt \
