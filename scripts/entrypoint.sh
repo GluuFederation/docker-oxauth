@@ -1,6 +1,34 @@
 #!/bin/sh
 set -e
 
+
+# ========
+# Profiler
+# ========
+profiler_opt=""
+if [ "${GLUU_JAVA_PROFILER}" = true ]; then
+    profiler_opt="-agentpath:/usr/local/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all"
+    # ========
+    # jattach
+    # ========
+
+    apk add --no-cache jattach --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/
+
+    # ============================
+    # YourKit Java Profiler agents
+    # ============================
+
+    wget https://www.yourkit.com/download/docker/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"-docker.zip -P /tmp/ && \
+    unzip /tmp/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"-docker.zip -d /usr/local && \
+    rm /tmp/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"-docker.zip && \
+    LD_LIBRARY_PATH=/lib64
+    if [ -n "${GLUU_JAVA_PROFILER_PORT}" ]; then
+        profiler_opt="
+            -agentpath:/usr/local/YourKit-JavaProfiler-"${GLUU_YOURKIT_AGENT_VERSION}"/bin/linux-x86-64/libyjpagent.so=port=${GLUU_JAVA_PROFILER_PORT},listen=all
+        "
+    fi
+fi
+
 # =========
 # FUNCTIONS
 # =========
@@ -58,6 +86,7 @@ exec java \
     -Dlog.base=/opt/gluu/jetty/oxauth \
     -Dpython.home=/opt/jython \
     -Djava.io.tmpdir=/opt/jetty/temp \
+    ${profiler_opt} \
     $(get_debug_opt) \
     ${GLUU_JAVA_OPTIONS} \
     -jar /opt/jetty/start.jar

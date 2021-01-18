@@ -1,40 +1,73 @@
 import contextlib
 import logging.config
 import os
+import shutil
 import time
+
+from webdav3.client import Client
+from webdav3.exceptions import RemoteResourceNotFound
+from webdav3.exceptions import NoConnection
+from webdav3.exceptions import RemoteParentNotFound
 
 from settings import LOGGING_CONFIG
 
-from pygluu.containerlib.document import RClone
-
 ROOT_DIR = "/repository/default"
 SYNC_DIR = "/opt/gluu/jetty/oxauth/custom"
+TMP_DIR = "/tmp/webdav"
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("webdav")
 
 
 def sync_from_webdav(url, username, password):
-    rclone = RClone(url, username, password)
-    rclone.configure()
+    client = Client({
+        "webdav_hostname": url,
+        "webdav_login": username,
+        "webdav_password": password,
+        "webdav_root": ROOT_DIR,
+    })
 
-    logger.info(f"Sync files with remote directory {url}{ROOT_DIR}{SYNC_DIR}")
-    rclone.copy_from(SYNC_DIR, SYNC_DIR)
+    try:
+        logger.info(f"Sync files from {url}{ROOT_DIR}{SYNC_DIR}")
+        # download files to temporary directory to avoid `/opt/gluu/jetty/oxauth/custom`
+        # getting deleted
+        client.download(SYNC_DIR, TMP_DIR)
+
+        # copy all downloaded files to /opt/gluu/jetty/oxauth/custom
+        for subdir, _, files in os.walk(TMP_DIR):
+            for file_ in files:
+                src = os.path.join(subdir, file_)
+                dest = src.replace(TMP_DIR, SYNC_DIR)
+
+                if not os.path.exists(os.path.dirname(dest)):
+                    os.makedirs(os.path.dirname(dest))
+                # logger.info(f"Copying {src} to {dest}")
+                shutil.copyfile(src, dest)
+    except (RemoteResourceNotFound, NoConnection) as exc:
+        logger.warning(f"Unable to sync files from {url}{ROOT_DIR}{SYNC_DIR}; reason={exc}")
 
 
 def sync_to_webdav(url, username, password):
-    rclone = RClone(url, username, password)
-    rclone.configure()
+    client = Client({
+        "webdav_hostname": url,
+        "webdav_login": username,
+        "webdav_password": password,
+        "webdav_root": ROOT_DIR,
+    })
 
     files = (
         "/etc/certs/otp_configuration.json",
         "/etc/certs/super_gluu_creds.json",
     )
 
-    for local in files:
-        remote = os.path.dirname(local)
-        logger.info(f"Sync file {local} to {url}{ROOT_DIR}{remote}")
-        rclone.copy_to(remote, local)
+    for file_ in files:
+        try:
+            logger.info(f"Sync {file_} to {url}{ROOT_DIR}{file_}")
+            client.mkdir("/etc")
+            client.mkdir("/etc/certs")
+            client.upload_file(file_, file_)
+        except (RemoteResourceNotFound, NoConnection, RemoteParentNotFound) as exc:
+            logger.warning(f"Unable to sync {file_} to {url}{ROOT_DIR}{file_}; reason={exc}")
 
 
 def get_sync_interval():

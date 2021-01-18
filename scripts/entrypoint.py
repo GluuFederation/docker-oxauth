@@ -1,6 +1,11 @@
 import base64
+import contextlib
 import os
 import re
+
+from webdav3.client import Client
+from webdav3.exceptions import RemoteResourceNotFound
+from webdav3.exceptions import NoConnection
 
 from pygluu.containerlib import get_manager
 from pygluu.containerlib.persistence import render_couchbase_properties
@@ -14,6 +19,8 @@ from pygluu.containerlib.persistence import sync_ldap_truststore
 from pygluu.containerlib.utils import cert_to_truststore
 from pygluu.containerlib.utils import get_server_certificate
 from pygluu.containerlib.utils import as_boolean
+
+from jca_sync import get_jackrabbit_url
 
 manager = get_manager()
 
@@ -151,6 +158,45 @@ def main():
             f.write(
                 base64.b64decode(manager.secret.get("oxauth_openid_key_base64")).decode()
             )
+
+    certs_from_webdav()
+
+
+def certs_from_webdav():
+    store_type = os.environ.get("GLUU_DOCUMENT_STORE_TYPE", "LOCAL")
+    if store_type != "JCA":
+        return
+
+    url = get_jackrabbit_url()
+
+    username = os.environ.get("GLUU_JACKRABBIT_ADMIN_ID", "admin")
+    password = ""
+
+    password_file = os.environ.get(
+        "GLUU_JACKRABBIT_ADMIN_PASSWORD_FILE",
+        "/etc/gluu/conf/jackrabbit_admin_password",
+    )
+    with contextlib.suppress(FileNotFoundError):
+        with open(password_file) as f:
+            password = f.read().strip()
+    password = password or username
+
+    client = Client({
+        "webdav_hostname": url,
+        "webdav_login": username,
+        "webdav_password": password,
+        "webdav_root": "/repository/default",
+    })
+
+    certs = [
+        "/etc/certs/otp_configuration.json",
+        "/etc/certs/super_gluu_creds.json",
+    ]
+    try:
+        for cert in certs:
+            client.download_file(cert, cert)
+    except (RemoteResourceNotFound, NoConnection):
+        pass
 
 
 if __name__ == "__main__":
