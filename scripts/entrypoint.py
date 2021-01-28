@@ -8,7 +8,7 @@ from pygluu.containerlib.persistence import render_gluu_properties
 from pygluu.containerlib.persistence import render_hybrid_properties
 from pygluu.containerlib.persistence import render_ldap_properties
 from pygluu.containerlib.persistence import render_salt
-from pygluu.containerlib.persistence import sync_couchbase_cert
+# from pygluu.containerlib.persistence import sync_couchbase_cert
 from pygluu.containerlib.persistence import sync_couchbase_truststore
 from pygluu.containerlib.persistence import sync_ldap_truststore
 from pygluu.containerlib.utils import cert_to_truststore
@@ -81,7 +81,7 @@ def main():
             "/etc/gluu/conf/gluu-couchbase.properties",
         )
         # need to resolve whether we're using default or user-defined couchbase cert
-        sync_couchbase_cert(manager)
+        # sync_couchbase_cert(manager)
         sync_couchbase_truststore(manager)
 
     if persistence_type == "hybrid":
