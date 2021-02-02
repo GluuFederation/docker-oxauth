@@ -17,7 +17,7 @@ RUN apk update \
 # Jetty
 # =====
 
-ARG JETTY_VERSION=9.4.26.v20200117
+ARG JETTY_VERSION=9.4.35.v20201120
 ARG JETTY_HOME=/opt/jetty
 ARG JETTY_BASE=/opt/gluu/jetty
 ARG JETTY_USER_HOME_LIB=/home/jetty/lib
@@ -47,8 +47,8 @@ RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_
 # oxAuth
 # ======
 
-ENV GLUU_VERSION=4.2.2.sp1
-ENV GLUU_BUILD_DATE="2021-01-18 10:32"
+ENV GLUU_VERSION=4.2.3.Final
+ENV GLUU_BUILD_DATE="2021-02-02 12:40"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -188,8 +188,8 @@ ENV GLUU_JAVA_PROFILER=false \
 LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.2" \
-    release="06" \
+    version="4.2.3" \
+    release="01" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
