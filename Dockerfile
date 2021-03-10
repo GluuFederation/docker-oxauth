@@ -195,7 +195,7 @@ COPY libs /opt/gluu/python/libs
 # When debuging interception scripts the location of the pydev will be at /opt/gluu/python/libs/pydevd
 # =====
 RUN tar -vxzf /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0.tar.gz -C /opt/gluu/python/libs \
-    && mv /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0 /opt/gluu/python/libs/pydevd
+    && mv /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0 /opt/gluu/python/libs/pydevd \
     && rm /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0.tar.gz
 
 COPY certs /etc/certs
