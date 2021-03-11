@@ -38,6 +38,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
     && /opt/jython/bin/pip install --no-cache-dir "pip==19.2" \
+    && /opt/jython/bin/pip install --no-cache-dir "pydevd" \
     && rm -f /tmp/jython-installer.jar /tmp/*.properties
 
 # ======
@@ -189,14 +190,6 @@ RUN mkdir -p /etc/certs /deploy \
     /app/templates
 
 COPY libs /opt/gluu/python/libs
-
-# ======
-# PyDev
-# When debuging interception scripts the location of the pydev will be at /opt/gluu/python/libs/pydevd
-# =====
-RUN tar -vxzf /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0.tar.gz -C /opt/gluu/python/libs \
-    && mv /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0 /opt/gluu/python/libs/pydevd \
-    && rm /opt/gluu/python/libs/PyDev.Debugger-pydev_debugger_1_9_0.tar.gz
 
 COPY certs /etc/certs
 COPY jetty/oxauth_web_resources.xml ${JETTY_BASE}/oxauth/webapps/
