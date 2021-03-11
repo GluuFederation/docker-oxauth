@@ -38,6 +38,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_
     && mkdir -p /opt/jython \
     && java -jar /tmp/jython-installer.jar -v -s -d /opt/jython \
     && /opt/jython/bin/pip install --no-cache-dir "pip==19.2" \
+    && /opt/jython/bin/pip install --no-cache-dir "pydevd" \
     && rm -f /tmp/jython-installer.jar /tmp/*.properties
 
 # ======
