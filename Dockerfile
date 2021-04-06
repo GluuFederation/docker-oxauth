@@ -46,7 +46,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_
 # ======
 
 ENV GLUU_VERSION=4.3.0-SNAPSHOT
-ENV GLUU_BUILD_DATE="2021-03-10 12:12"
+ENV GLUU_BUILD_DATE="2021-03-23 18:09"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -132,6 +132,7 @@ ENV GLUU_SECRET_ADAPTER=vault \
 ENV GLUU_PERSISTENCE_TYPE=ldap \
     GLUU_PERSISTENCE_LDAP_MAPPING=default \
     GLUU_LDAP_URL=localhost:1636 \
+    GLUU_LDAP_USE_SSL=true \
     GLUU_COUCHBASE_URL=localhost \
     GLUU_COUCHBASE_USER=admin \
     GLUU_COUCHBASE_CERT_FILE=/etc/certs/couchbase.crt \
