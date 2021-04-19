@@ -46,7 +46,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_
 # ======
 
 ENV GLUU_VERSION=4.2.3.Final
-ENV GLUU_BUILD_DATE="2021-04-19 16:21"
+ENV GLUU_BUILD_DATE="2021-04-19 21:34"
 
 # Install oxAuth
 RUN wget -q https://ox.gluu.org/maven/org/gluu/oxauth-server/${GLUU_VERSION}/oxauth-server-${GLUU_VERSION}.war -O /tmp/oxauth.war \
@@ -178,7 +178,7 @@ LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.2.3" \
-    release="04" \
+    release="05" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
