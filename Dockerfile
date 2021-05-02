@@ -43,7 +43,7 @@ RUN wget -q https://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_
 RUN wget -q https://github.com/fabioz/PyDev.Debugger/archive/refs/tags/pydev_debugger_2_3_0.tar.gz -P /tmp \
     && tar xvf /tmp/pydev_debugger_2_3_0.tar.gz -C /tmp \
     && cd /tmp/PyDev.Debugger-pydev_debugger_2_3_0 \
-    && /opt/jython/bin/jython setup.py install \
+    && /opt/jython/bin/pip install . \
     && rm -rf /tmp/pydev_debugger* /tmp/PyDev.Debugger-*
 
 # ======
