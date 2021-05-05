@@ -183,7 +183,7 @@ LABEL name="oxAuth" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.2.3" \
-    release="06" \
+    release="07" \
     summary="Gluu oxAuth" \
     description="OAuth 2.0 server and client; OpenID Connect Provider (OP) & UMA Authorization Server (AS)"
 
